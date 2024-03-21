@@ -324,10 +324,19 @@ function App() {
 #### `commit` 阶段做了什么？
 
 * `rootDoesHavePassiveEffects` 存在就执行 `flushPassiveEffects()`
+  - 异步执行 Effect，其实就是异步执行 `useEffect`
 * `commitBeforeMutationEffects()` before mutation 阶段
+  - 处理 autofocus
+  - 根据节点类型不同分别处理不同情况
+  - ClassComponent 会触发 `getSnapshotBeforeUpdate()` 生命周期
+  - HostRoot 会清空容器内容(`container.textContent = ""`)
 * `commitMutationEffects()` mutation 阶段，主要是渲染真实 DOM
+  - 递归处理节点（从父到子/自上而下）
+  - 先处理 Deletion
+  - 再处理 Placement
+  - 最后处理 Update
 * `commitLayoutEffects()` layout 阶段，执行 layout Effect
-* `onCommitRoot()` ？？
+* `onCommitRoot()` 给 React DevTools 等开发工具提供钩子，以便在完成渲染后做额外的处理，比如：性能监控、日志记录等
 
 疑问：
 
@@ -339,7 +348,7 @@ function App() {
 5. 初次渲染时进入 `beginWork` 会进入 `update` 逻辑，这是因为在创建 `workInProgress` 时缓存了根节点
 6. `reconcileChildren()` 做了什么？（协调算法，初次渲染直接 mount 全部，更新时需要研究 diff 算法）
 7. `rootDoesHavePassiveEffects` 这个变量什么时候赋值的？执行 Effect 之前会判断是否有正在进行的 Effect
-8. `onCommitRoot()` 做了什么？
+8. `onCommitRoot()` 做了什么？✅
 
 
 收获点：
