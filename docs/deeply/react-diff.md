@@ -91,6 +91,10 @@ author: senmu
     - 同理如果列表从 1->2->3 变为 1->3->2
       - 那么就是 1 与 3 不动，只将 2 添加到 3 后面就好了
 
+流程图如下：
+
+![arrayNodeDiff](/arrayNodeDiff.jpg)
+
 ## 疑问🤔
 
 * `lazy` 的组件 `_palyload` 和 `_init` 是什么？
