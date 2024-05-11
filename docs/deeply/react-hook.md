@@ -1,6 +1,6 @@
 ---
 title: React Hook 的原理
-date: 2024/04/18
+date: 2024/05/09
 author: senmu
 ---
 
@@ -50,3 +50,69 @@ author: senmu
 ### `useReducer` 函数内执行 Hook
 
 可以发现在不执行 `dispatch` 方法时是不会报错的，这是因为在调用 Hook 方法后会将 `ReactCurrentDispatcher.current` 的值设置为 `InvalidNestedHooksDispatcherOnMountInDEV` 方法，而该方法会添加控制台的报错情况。
+
+### 总结
+
+从上面这些 Hook 的规则报错情况来看，有的报错由 Eslint 发出的，是在编译层面发出的。而另一部分运行时的报错是跟 Hook 的执行时机有关的，比如：在调用了 `useEffect` 后将 `ReactCurrentDispatcher.current` 的值变为有报错的 Hook 函数，此时调用 `useState` 等 Hook 就会执行该报错。
+
+## Hook 核心内容
+
+### `useState` 基本原理
+
+要想探寻 `useState` 的原理，我们需要知道数据如何存放、更新后的重新渲染如何进行？
+
+#### 数据存放
+
+我们都知道 React 中存在 `mount` 和 `update` 阶段，我们分别来看下，在 `mount` 时：
+
+* 初始化数据对象
+  ```ts
+  const hook = {
+    memoizedState: null,
+    baseState: null,
+    baseQueue: null,
+    queue: null,
+    next: null
+  }
+  ```
+* 如果传入的初始值（`initialState`）为函数则立刻执行，并将结果保存
+* 将 `initialState` 值赋值给 `hook.memoizedState`、`hook.baseState`
+* 初始化队列
+  ```ts
+  // basicStateReducer
+  function basicStateReducer(state, action) {
+    return typeof action === 'function' ? action(state) : action;
+  }
+  const queue = {
+    pending: null,
+    lanes: NoLanes, // 0
+    dispatch: null,
+    lastRenderedReducer: basicStateReducer,
+    lastRenderedState: initialState // 用户传进来的初始值
+  }
+  ```
+* 将 `queue` 赋值给 `hook.queue`
+* 绑定 `dispatchSetState` 函数给 `queue.dispatch`
+* 返回 `[hook.memoizedState, queue.dispatch]`
+
+由上述过程可以看出来，数据其实是存放在 `hook.memoizedState` 上的，那此时便会有疑问，如果我直接更改该值可不可以重新渲染？
+
+答案是否定的，因为重新渲染本质是更新了状态值然后利用调度函数进行更新才会重新渲染页面。但如果 React 暴露调度方法供我们调用，那我们便可以自行维护状态管理了～
+
+另外值得注意的是，我更改上面 `hook.memoizedState` 的初始化赋值会对页面渲染的值有影响，这是因为 `hook.memoizedState` 与 `fiber.memoizedState` 会相关联。
+
+#### 数据更改
+
+这部分其实可以在大方向上分为两种情况
+
+### `useEffect` 基本原理
+
+类似 `useState` 也会在初始执行时将回调函数和第二个依赖项加入 `hook.memoizedState` 存储，然后在适当时机（在 commit 阶段加入微任务队列）执行。
+
+执行会根据依赖项的不同执行回调函数。
+
+如果没有依赖项则每次重新渲染都会执行回调函数（这里包括 setup 与 destroy 函数，update 时先执行 destroy，再执行 setup。mount 时只执行setup）。
+
+如果依赖项为空数组的话只有mount时会执行 setup，在卸载时执行 destroy。
+
+如果依赖项存在，则会判断状态是否更改，如果更改的话就同没有依赖项一样执行。
