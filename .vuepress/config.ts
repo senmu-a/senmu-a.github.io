@@ -40,7 +40,8 @@ export default defineUserConfig({
       { text: "记录", children: [
         { text: "算法", link: "/records/algorithm/data-struct" },
         { text: "面试", link: "/docs/interview/byteDance" },
-        { text: "React 深水区", link: "/docs/deeply/react-core" }
+        { text: "React 深水区", link: "/docs/deeply/react-core" },
+        { text: "浏览器相关", link: "/docs/browser/basic" }
       ] },
       {
         text: "翻译",
