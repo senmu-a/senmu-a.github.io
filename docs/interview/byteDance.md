@@ -186,3 +186,61 @@ setTimeout(concurrent2, 10000); // after 1 second, logs "fast", then after 1 mor
 ```
 
 ### 实现 isEqual
+
+### 实现一个类，可以链式调用支持 sleep 与 sleepFirst
+
+```ts
+class SleepChain {
+  constructor() {
+    this.queue = Promise.resolve();
+    this.firstPromise = null;
+  }
+  sleep(time: number) {
+    this.queue = this.queue.then(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, time)
+      })
+    })
+    return this;
+  }
+  sleepFirst(time: number) {
+    this.firstPromise = new Promise((resolve, reject) => {
+      setTimeout(resolve, time)
+    })
+    return this;
+  }
+  doSomething(func) {
+    const callback = () => {
+      if (this.firstPromise) {
+        return this.firstPromise.then(() => {
+          this.firstPromise = null;
+          return func();
+        });
+      }
+      return func();
+    }
+    this.queue = this.queue.then(callback);
+    return this;
+  }
+}
+```
+
+### 用正则匹配身份证
+
+### 处理扁平数据为树状结构
+
+### websocket多长时间会自动断开连接
+
+### websocket状态码
+
+### reactive与ref区别与原理
+
+### webpack是多线程吗
+
+### React Hook 为什么返回值是数组？
+
+关键点：数组与其他数据格式的对比有哪些优势，为什么我想不到这样回答？反而是想到了性能相关的考虑？
+
+
