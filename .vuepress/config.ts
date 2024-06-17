@@ -29,6 +29,12 @@ export default defineUserConfig({
           children: ["data-struct", "linear-struct", "nolinear-struct"]
         }
       ],
+      "/records/weekly/2024": [
+        {
+          text: "每周记录",
+          children: ["06-14"]
+        }
+      ],
       "/docs/interview": [
         {
           text: "面试记录",
@@ -39,6 +45,7 @@ export default defineUserConfig({
     navbar: [
       { text: "记录", children: [
         { text: "算法", link: "/records/algorithm/data-struct" },
+        { text: "每周记录", link: "/records/weekly/2024/06-14" },
         { text: "面试", link: "/docs/interview/byteDance" },
         { text: "React 深水区", link: "/docs/deeply/react-core" },
         { text: "浏览器相关", link: "/docs/browser/basic" }
