@@ -52,6 +52,11 @@ categories:
 
 子应用：负责开发图表等其他数据展示的页面
 
+技术栈：vue-property-decorator(vue2.5.22)、qiankun、vuex、vue-router、TypeScript
+
+项目中的亮/难点：
+1. 
+
 ### 低代码组件库
 
 ### Perf 监控平台

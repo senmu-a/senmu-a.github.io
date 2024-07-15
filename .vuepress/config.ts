@@ -32,7 +32,7 @@ export default defineUserConfig({
       "/records/weekly/2024": [
         {
           text: "每周记录",
-          children: ["06-14", "06-21", "06-28", "07-05"]
+          children: ["06-14", "06-21", "06-28", "07-05", "07-12"]
         }
       ],
       "/docs/interview": [
