@@ -14,7 +14,7 @@ export default defineUserConfig({
     docsBranch: "main",
     docsDir: "example",
     lastUpdatedText: "最近更新",
-    autoSetSeries: true,
+    // autoSetSeries: true,
     // series 为原 sidebar
     series: {
       "/docs/effective-typescript/": [
@@ -29,10 +29,16 @@ export default defineUserConfig({
           children: ["data-struct", "linear-struct", "nolinear-struct"]
         }
       ],
-      "/records/weekly/2024": [
+      "/records/weekly/2024/": [
         {
           text: "每周记录",
           children: ["06-14", "06-21", "06-28", "07-05", "07-12", "07-19"]
+        }
+      ],
+      "/records/weekly/2025/": [
+        {
+          text: "二月记录",
+          children: ["02-21"]
         }
       ],
       "/docs/interview": [
@@ -45,7 +51,8 @@ export default defineUserConfig({
     navbar: [
       { text: "记录", children: [
         { text: "算法", link: "/records/algorithm/data-struct" },
-        { text: "每周记录", link: "/records/weekly/2024/06-14" },
+        { text: "每周记录(2024)", link: "/records/weekly/2024/06-14" },
+        { text: "每周记录(2025)", link: "/records/weekly/2025/02-21" },
         { text: "面试", link: "/docs/interview/byteDance" },
         { text: "React 深水区", link: "/docs/deeply/react-core" },
         { text: "浏览器相关", link: "/docs/browser/basic" }
