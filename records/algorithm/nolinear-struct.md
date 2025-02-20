@@ -315,3 +315,99 @@ function postOrder(root: TreeNode | null) {
   list.push(root.val)
 }
 ```
+
+## 图
+
+### 什么是图？
+
+图是由顶点（vertex）和边（edge）组成，简单来讲就是：存在几个顶点，这几个顶点之间可以通过边来连接，并且可以没有固定的顺序；
+
+如果说树是一对多的关系，那么图就是多对多的关系。
+
+### 怎样表示图？
+
+可以通过邻接矩阵、邻接表的方式来表示一个图，可以将邻接矩阵理解为用空间来换时间。
+
+#### 邻接表
+
+邻接表是我们常用的来表示图的方式，也即记录顶点与顶点之前是否存在边的关系来表示。
+
+比如：
+
+     A
+   /   \
+  B     C
+ / \     \
+D   E     F
+
+表示为：
+
+```js
+const graph = {
+  "A": ["B", "C"],
+  "B": ["D", "E"],
+  "C": ["F"],
+  "D": [],
+  "E": [],
+  "F": []
+};
+```
+
+那么如何遍历一个图呢？有两种方式：
+
+1. 广度优先遍历（BFS）
+2. 深度优先遍历（DFS）
+
+```js
+const graph = {
+  "A": ["B", "C"],
+  "B": ["D", "E"],
+  "C": ["F"],
+  "D": [],
+  "E": [],
+  "F": []
+};
+// 1. 广度优先遍历
+const graphBFS = (graph, start) => {
+  const visited = new Set(); // 定义 visited 用来记录是否已经遍历过该节点
+  const queue = []; // 定义队列用来进行遍历节点的操作
+  queue.push(start); // 将初始节点入队
+  visited.add(start);
+
+  while (queue.length) {
+    const node = queue.shift(); //出队    
+    console.log(node);
+
+    for (let adjVet of graph[node]) {
+      if (visited.has(adjVet)) continue;
+      queue.push(adjVet);
+      visited.add(adjVet);
+    }
+  }
+}
+
+graphBFS(graph, "A")
+
+// 2. 深度优先遍历
+const graphDFS = (graph, start) => {
+  const visited = new Set();
+  
+  const dfs = (vet) => {
+    if (!graph) return;
+
+    console.log(vet);
+
+    for (let ret of graph[vet]) {
+      if (!visited.has(ret)) {
+        visited.add(ret);
+      }
+      dfs(ret);
+    }
+  }
+
+  dfs(start);
+}
+
+graphDFS(graph, 'A')
+
+```
