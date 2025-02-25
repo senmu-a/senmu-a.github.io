@@ -36,3 +36,35 @@ let arr = [5, 3, 2, 4, 1];
 selectionSort(arr);
 console.log(arr) // [1, 2, 3, 4, 5]
 ```
+
+## 插入排序
+
+核心理念：类似扑克牌整理牌，依次从未排序区拿一个元素，然后根据大小插入已排序区
+
+```js
+let array = [12, 11, 13, 5, 6];
+function insertionSort(arr) {
+  // 容错处理
+  if (!Array.isArray(arr) || !arr.length) return [];
+  // 已排序区
+  const arrEd = [arr[0]];
+  // 是否被添加进已排序区
+  let flag = false;
+  for (let i = 1; i < arr.length; i++) {
+    flag = false;
+    for (let j = arrEd.length - 1; j >= 0; j--) {
+      if (arr[i] > arrEd[j] && !flag) {
+        arrEd.splice(j+1, 0, arr[i]);
+        flag = true;
+        break;
+      }
+    }
+    if (!flag) {
+      arrEd.unshift(arr[i]);
+    }
+  }
+  return arrEd;
+}
+const arr = insertionSort(array);
+console.log(arr);
+```
