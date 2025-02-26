@@ -68,3 +68,51 @@ function insertionSort(arr) {
 const arr = insertionSort(array);
 console.log(arr);
 ```
+
+## 归并排序
+
+核心理念：
+
+  1. 分治理念
+  2. 具体划分为**分解**和**合并**
+    - **分解**：把数组不断地二分，直到数组的长度小于2
+    - **合并**：将拆分出来的数组按照顺序合并到一起
+
+```js
+let array = [4, 2, 5, 1, 6, 3];
+// 1. 分解数组
+function mergeSort(arr) {
+  // 容错处理
+  if (!Array.isArray(arr) || !arr.length) return [];
+  // 递归的终止条件
+  if (arr.length < 2) return arr;
+  // 找到二分点
+  const mid = Math.floor(arr.length/2);
+  const arrLeft = arr.slice(0, mid);
+  const arrRight = arr.slice(mid, arr.length);
+  return merge(mergeSort(arrLeft), mergeSort(arrRight));
+}
+
+// 2. 合并数组
+function merge(left, right) {
+  // 存放合并后的数组
+  const result = [];
+  while (left.length && right.length) {
+    if (left[0] <= right[0]) {
+      result.push(left.shift());
+    } else {
+      result.push(right.shift());
+    }
+  }
+  // 左侧或者右侧已经添加进合并后的数组，发现还存在有未添加的
+  while (left.length) {
+    result.push(left.shift());
+  }
+  while (right.length) {
+    result.push(right.shift());
+  }
+  return result;
+}
+const arr = mergeSort(array);
+console.log(arr);
+```
