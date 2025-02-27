@@ -116,3 +116,71 @@ function merge(left, right) {
 const arr = mergeSort(array);
 console.log(arr);
 ```
+
+## 快速排序
+
+核心理念：
+
+  1. 分治
+  2. 确定“轴值”，轴值左侧都比轴值小，轴值右侧都比轴值大
+  3. 一层一层分下去，直到不可再分
+
+```js
+let arr = [5, 3, 7, 6, 2, 9];
+
+// 确定"轴值"
+function partition(arr, left, right) {
+  let pivot = arr[left];
+  let i = left;
+  let j = right;
+
+  while (i < j) {
+    while (i < j && arr[j] >= pivot) {
+      j--;
+    }
+    while (i < j && arr[i] <= pivot) {
+      i++;
+    }
+    if (i < j) {
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  [arr[left], arr[i]] = [arr[i], arr[left]];
+  return i;
+}
+
+// 双指针
+function quickSort(arr, left, right) {
+  if (!Array.isArray(arr) || !arr.length) return [];
+  // 递归终止条件
+  if (left >= right) return;
+  const partIndex = partition(arr, left, right);
+
+  quickSort(arr, left, partIndex - 1);
+  quickSort(arr, partIndex + 1, right);
+}
+quickSort(arr, 0, arr.length - 1);
+console.log(arr);
+
+// 遍历数组进行不断分区
+function quickSort(arr) {
+  if (!Array.isArray(arr) || !arr.length) return [];
+  if (arr.length <= 1) return arr;
+
+  let pivot = arr.splice(0, 1);
+
+  const left = [];
+  const right = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] > pivot) {
+      right.push(arr[i]);
+    } else {
+      left.push(arr[i]);
+    }
+  }
+  return quickSort(left).concat(pivot, quickSort(right));
+}
+
+console.log(quickSort(arr));
+```
