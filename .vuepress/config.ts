@@ -26,7 +26,7 @@ export default defineUserConfig({
       "/records/algorithm/": [
         {
           text: "数据结构",
-          children: ["data-struct", "linear-struct", "nolinear-struct"]
+          children: ["data-struct", "linear-struct", "nolinear-struct", "data-search"]
         }
       ],
       "/records/weekly/2024/": [
