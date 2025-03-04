@@ -1,5 +1,5 @@
 ---
-title: 排序算法
+title: 查找算法
 date: 2025/02/28
 author: senmu
 ---
