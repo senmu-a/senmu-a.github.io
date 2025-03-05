@@ -26,7 +26,15 @@ export default defineUserConfig({
       "/records/algorithm/": [
         {
           text: "数据结构",
-          children: ["data-struct", "linear-struct", "nolinear-struct", "data-search"]
+          children: ["data-struct", "linear-struct", "nolinear-struct"]
+        },
+        {
+          text: "算法",
+          children: ["data-search"]
+        },
+        {
+          text: "LeetCode",
+          children: ["leetcode"]
         }
       ],
       "/records/weekly/2024/": [
