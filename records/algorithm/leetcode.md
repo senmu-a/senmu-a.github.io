@@ -72,3 +72,52 @@ function invertTree(root: TreeNode | null): TreeNode | null {
   return root;
 };
 ```
+
+## 相同的树
+
+> <https://leetcode.cn/problems/same-tree/>
+
+核心理念：分治的思想。
+
+什么是分治的思想？
+
+1. 拆分 - 将问题拆解为一个最小的问题
+2. 解决 - 解决问题
+3. 合并 - 合并结果
+
+那这个题拆成最小问题即为：树的值相同、树的左子节点相同、树的右子节点相同
+
+```js
+// 输入：p = [1,2,3], q = [1,2,3]
+// 输出：true
+// function isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {
+//   if (!p && !q) return true;
+//   if (!p && q) return false;
+//   if (p && !q) return false;
+//   const queue = [[p, q]];
+//   while (queue.length) {
+//     const [node, node1] = queue.shift();
+//     if (node.val !== node1.val) return false;
+//     if (node.left && node1.left) {
+//         queue.push([node.left, node1.left]);
+//     } else if (node.left && !node1.left) {
+//         return false;
+//     } else if (!node.left && node1.left) {
+//         return false
+//     }
+//     if (node.right && node1.right) {
+//         queue.push([node.right, node1.right]);
+//     } else if (node.right && !node1.right) {
+//         return false;
+//     } else if (!node.right && node1.right) {
+//         return false;
+//     }
+//   }
+//   return true;
+// };
+function isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {
+  if (!p && !q) return true;
+  if (!p || !q || p.val !== q.val) return false;
+  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right)
+};
+```
