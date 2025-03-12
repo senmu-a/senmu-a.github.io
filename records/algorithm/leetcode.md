@@ -153,3 +153,71 @@ function climbStairs(n: number): number {
 ## 最长公共子序列问题
 
 ## 最短路径
+
+## 打家劫舍
+
+> <https://leetcode.cn/problems/house-robber/>
+
+- 结果是什么？算出 n 以内最大的和
+- 条件是什么？求和时必须相隔一个或以上
+- 步骤是什么？下面模拟场景已经推导出步骤
+- 模拟场景：（n 为 数组长度，r 为结果，arr 为数组，i 为下标值，dp 是累加数组）
+  - 当 n 为 1 时，r 为 arr[0]；
+  - 当 n 为 2 时，r 为 `Math.max(arr[0], arr[1])`；
+  - 当 n 为 3 时，r 为 `Math.max(arr[1], arr[0] + arr[2])`；
+    - i = 0; `dp[i] = arr[i]`
+    - i = 1; `dp[i] = Math.max(dp[i - 1], arr[i])`
+    - i = 2; `dp[i] = Math.max(dp[i - 1], arr[i])`
+  - 当 n 为 4 时，假设：`[1,2,3,1]`，r 应为 1 + 3 => 4
+    - i = 0; `dp[i] = arr[i]` => 1
+    - i = 1; `dp[i] = Math.max(dp[i - 1], arr[i])` => 1 ? 2 => 2
+    - i = 2; `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])` => 2 ? 4 => 4
+    - i = 3; `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])` => 4 ? 2 => 4
+    - 得出结论 `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])`
+  - 当 n 为 5 时，假设：`[2,7,9,3,1]`，r 应为 2 + 9 + 1 => 12
+    - i = 0; `dp[0] = 2`
+    - i = 1; `dp[1] = 7`
+    - i = 2; `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])` => 7 ? 9 + 2 => 11
+    - i = 3; `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])` => 11 ? 3 + 7 => 11
+    - i = 4; `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])` => 11 ? 1 + 11 => 12
+    - 证明结论合理
+- `dp[i] = Math.max(dp[i - 1], arr[i] + dp[i - 2])`
+
+```ts
+/**
+ * 基础版
+ * 时间复杂度：O(n)
+ * 空间复杂度为：O(n)
+*/
+function rob1(nums: number[]): number {
+  const len = nums.length;
+  if (len === 1) return nums[0];
+  if (len === 2) return Math.max(nums[0], nums[1]);
+  const dp = [];
+  dp.push(nums[0]);
+  dp.push(Math.max(nums[0], nums[1]));
+  for (let i = 2; i < len; i++) {
+    dp[i] = Math.max(dp[i - 1], nums[i] + dp[i - 2]);
+  }
+  return dp.pop();
+};
+
+/**
+ * 优化空间复杂度
+*/
+function rob2(nums: number[]): number {
+  const len = nums.length;
+  if (len === 1) return nums[0];
+  if (len === 2) return Math.max(nums[0], nums[1]);
+  let q = nums[0];
+  let p = Math.max(nums[0], nums[1]);
+  let r = 0;
+
+  for (let i = 2; i < len; i++) {
+    r = Math.max(p, nums[i] + q);
+    q = p;
+    p = r;
+  }
+  return r;
+};
+```
