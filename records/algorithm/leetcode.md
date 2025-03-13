@@ -221,3 +221,37 @@ function rob2(nums: number[]): number {
   return r;
 };
 ```
+
+## 分发饼干
+
+> <https://leetcode.cn/problems/assign-cookies/>
+
+贪心算法，尽可能多的满足每个小孩的胃口，那换句话说就是满足每个小孩最小的胃口就好了。
+
+那怎样能保证尽可能多的满足小孩的胃口呢？ 需要将每个小孩和饼干尺寸按小到大排序，将大胃口的小孩和大尺寸的饼干留到最后再使用。
+
+```ts
+/**
+ * 结果是什么？ 尽可能多的满足小孩的胃口（但是要注意一个小孩最多分一个饼干）
+ * 步骤是什么？ 
+ *    - 将小孩的胃口 g 和饼干 s 的尺寸从小到大排序
+ *    - 定义两个指针 i 和 j，分别来指向小孩和饼干
+ *    - 遍历小孩和饼干，判断是否 s[j] >= g[i]，如果是的话则 i++（注意：不论是否条件满足 j 都要 ++）
+ * 时间复杂度：O(nlogn) sort 排序算法需要的复杂度
+ * 空间复杂度：O(i)
+*/
+function findContentChildren(g: number[], s: number[]): number {
+    g.sort((a, b) => a - b);
+    s.sort((a, b) => a - b);
+    let i = 0;
+    let j = 0;
+    
+    while (i < g.length && j < s.length) {
+      if (s[j] >= g[i]) {
+        i++;
+      }
+      j++;
+    }
+    return i;
+};
+```
