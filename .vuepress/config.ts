@@ -37,6 +37,12 @@ export default defineUserConfig({
           children: ["leetcode"]
         }
       ],
+      "/records/typescript-challenge/": [
+        {
+          text: "TypeScript 体操",
+          children: ["challenge-1"]
+        }
+      ],
       "/records/weekly/2024/": [
         {
           text: "每周记录",

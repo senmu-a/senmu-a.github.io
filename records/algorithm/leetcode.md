@@ -255,3 +255,30 @@ function findContentChildren(g: number[], s: number[]): number {
     return i;
 };
 ```
+
+## 买卖股票的最佳时机 II
+
+> <https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/description/>
+
+推荐指数：⭐️⭐️⭐️⭐️⭐️
+
+核心理念：**局部最优解相加就是最优解**。
+
+因为题目只需要算出最大的利润，那么就是说我们只需要计算出每一步的最大利润然后相加就好。
+
+⚠️另外要注意：贪心算法的计算只是算出最大利润，并不代表每次都要进行交易。
+
+```ts
+// 输入 prices = [7,1,5,3,6,4]
+// 得出 7
+// [7,1,5,8,6,4]
+function maxProfit(prices: number[]): number {
+  let total = 0;
+  for (let i = 1; i < prices.length; i++) {
+    if (prices[i - 1] < prices[i]) {
+      total += prices[i] - prices[i - 1];
+    }
+  }
+  return total;
+};
+```
