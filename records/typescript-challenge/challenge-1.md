@@ -58,3 +58,40 @@ type a = MyReturnType<typeof fn>; // should be "1 | 2"
 ```ts
 type MyReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
 ```
+
+## 实现 MyOmit
+
+题目要求如下：
+
+Implement the built-in `Omit<T, K>` generic without using it.
+
+Constructs a type by picking all properties from `T` and then removing `K`
+
+For example:
+
+```ts
+interface Todo {
+  title: string
+  description: string
+  completed: boolean
+}
+  
+type TodoPreview = MyOmit<Todo, 'description' | 'title'>; // { completed: boolean }
+const todo: TodoPreview = { completed: false };
+```
+
+1. 分析题目意图，实现类似 `Omit<T, K>` 的功能，换句话说就是排除泛型 `T` 中的属性，这个属性由 `K` 来定义。
+2. 需要哪些知识？
+   1. 泛型 ✅
+   2. 泛型 `T` 如何排除掉联合类型？
+      1. 联合类型是泛型 `T` 的 `key`
+      2. `keyof T` => `'title' | 'description' | 'completed'`、`K` => `'description' | 'title'`
+      3. `keyof T extends K ? never : T` 如果 `K` 在 `T` 的 `key` 中，就排除他
+3. 如何解题？ - 懂了以上知识就简单了
+
+```ts
+type MyExclude<T, U> = T extends U ? never : T;
+type MyOmit<T extends object, K extends keyof any> = {
+  [key in MyExclude<keyof T, K>]: T[key]
+}
+```

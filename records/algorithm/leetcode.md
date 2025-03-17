@@ -282,3 +282,47 @@ function maxProfit(prices: number[]): number {
   return total;
 };
 ```
+
+## 全排列
+
+> <https://leetcode.cn/problems/permutations/>
+
+- 结果是什么？将所有排列的情况都输出出来
+- 思想是什么？回溯算法
+  - 先深度递归直到数组末尾（递归终止条件）
+  - 回溯
+- 步骤是什么？
+  - 创建结果数组 result，创建内层缓存数组 temp
+  - **回溯算法**
+    - 递归终止条件 - 当 temp 的长度与 nums 的长度相等就将 temp 保存的内容添加到 result 中
+    - 从头开始遍历 nums
+      - 跳过已经添加进 temp 的元素
+      - 将 nums[i] 添加进 temp
+      - **递归回溯算法**
+      - 删除添加进 temp 中的元素（回溯）
+  - 返回结果数组 result
+
+```ts
+function permute(nums: number[]): number[][] {
+    const result = [];
+    const temp = [];
+
+    // 回溯算法
+    backtrack(result, temp, nums);
+
+    return result;
+};
+
+function backtrack(result, temp, nums) {
+  if (temp.length === nums.length) {
+    result.push([...temp]);
+    return;
+  }
+  for (let i = 0; i < nums.length; i++) {
+    if (temp.includes(nums[i])) continue;
+    temp.push(nums[i]);
+    backtrack(result, temp, nums);
+    temp.pop();
+  }
+}
+```
