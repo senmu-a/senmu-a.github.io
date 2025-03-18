@@ -95,3 +95,39 @@ type MyOmit<T extends object, K extends keyof any> = {
   [key in MyExclude<keyof T, K>]: T[key]
 }
 ```
+
+## 实现 MyPick
+
+Implement the built-in Pick<T, K> generic without using it.
+
+Constructs a type by picking the set of properties K from T
+
+For example:
+
+```ts
+interface Todo {
+  title: string
+  description: string
+  completed: boolean
+}
+
+type TodoPreview = MyPick<Todo, 'title' | 'completed'>
+
+const todo: TodoPreview = {
+  title: 'Clean room',
+  completed: false,
+}
+```
+
+1. 分析题目意图，实现类似 `MyPick<T, K>` 的功能，换句话说就是选择泛型 `T` 中的属性，这个属性由 `K` 来定义。
+2. 需要哪些知识？
+   1. 泛型 ✅
+   2. 泛型 `T` 属于 `K` 的属性选择出来，与上面 `MyOmit` 相反
+3. 如何解题？
+
+```ts
+type MyInclude<T, U> = T extends U ? T : never;
+type MyPick<T, K extends keyof any> = {
+  [P in MyInclude<keyof T, K>]: T[P]
+};
+```

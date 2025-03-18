@@ -303,6 +303,10 @@ function maxProfit(prices: number[]): number {
   - 返回结果数组 result
 
 ```ts
+/**
+ * 时间复杂度：O(n! * n) 递归的深度是 n，并且每层递归中都需要循环 n、n-1、n-2... 总共是 n!
+ * 空间复杂度是 O(n) 递归的深度是 n，temp 数组需要 o(n) 的空间
+*/
 function permute(nums: number[]): number[][] {
     const result = [];
     const temp = [];
@@ -325,4 +329,52 @@ function backtrack(result, temp, nums) {
     temp.pop();
   }
 }
+```
+
+## 子集
+
+> <https://leetcode.cn/problems/subsets/>
+
+- 结果是什么？ 输出一个集合/数组的全部子集情况（包括空）
+- 思想是什么？ 回溯算法
+  - 还是深度递归，需要维护一个不断增长的「起始指针」用于排除掉前面已经输出的子集
+  - 将每一种情况都添加进结果数组
+- 步骤是什么？
+  - 创建结果数组 result，创建起始指针 startIndex，创建缓存数组 temp
+  - 执行回溯算法（处理结果数组）
+    - 将缓存数组添加进 result
+    - 从 startIndex 开始遍历所有的元素，**注意，这里和上面全排列有点区别**，因为它需要排除掉前面已经添加到子集的元素，而全排列不需要
+    - 将 nums[i] 添加进 temp（入）
+    - 深度递归（需要将 i + 1 赋值给 startIndex）
+    - 回溯（出）
+  - 返回结果数组
+
+```ts
+/**
+ * 时间复杂度：O(2^n * n)
+ *    - 对于长度为 n 的数组，总共有 2 ^ n 个子集（每个元素都有“选”与“不选”两种状态）
+ *    - 每次找到一个子集时，需要 O(n) 的时间复制临时数组到结果中
+ * 空间复杂度：O(n) n 指的是所有符合条件的子集数
+*/
+function subsets(nums: number[]): number[][] {
+   const reuslt = [];
+   const temp = [];
+   let startIndex = 0;
+
+   // 执行回溯算法，处理 result
+   backtrace(result, temp, nums, startIndex);
+
+   return result;
+};
+
+function backtrace(result: number[][], temp: number[], nums: number[], startIndex: number) {
+  result.push([...temp]);
+
+  for (let i = startIndex; i < nums.length; i++) {
+    temp.push(nums[i]);
+    backtrace(result, temp, nums, i + 1);
+    temp.pop();
+  }
+}
+
 ```
