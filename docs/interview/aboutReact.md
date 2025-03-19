@@ -141,3 +141,53 @@ class ErrorBound extends React.Component{
 - 如果遇到需要定制组件的 Refs 功能，则需要使用 `forwardRef` 包裹组件
 - `useRef` 在渲染间保持相同引用，更改 `.current` 不会触发重新渲染
 - `createRef` 每次渲染都创建新引用，不保持状态
+
+## memo 有什么用途？useMemo 和 memo 的区别是什么？useCallback 和 useMemo 的区别是什么？
+
+一般来说，使用 `memo(CompA)` 包裹组件来减少不必要的重新渲染，例如：有个组件 A 只是展示了某些静态元素的内容（没有 `state`，没有 `props`），如果在其父组件 B 中发生了状态更新，触发了 React 的 `re-render`，那么组件 A 也会跟着更新（即使他什么都没变化）；但是！如果使用了 `memo` 包裹后组件 A 就不会跟着更新。
+
+更进一步说，使用了 `memo(CompA)` 包裹的组件在触发 `re-render` 时会进行 `Object.is(prevProps, curProps)` 这样的浅比较。
+
+`useMemo` 用来包裹复杂的函数/逻辑计算，接受传入依赖项（依赖项更新会重新计算缓存，不更新的话就保持缓存）；他与 `memo` 的使用场景不同，但是实现的功能类似。
+
+`useCallback` 与 `useMemo` 的区别在于，前者缓存函数后者缓存函数执行结果，前者不会立即执行，后者会立即执行。
+
+## React 的新老生命周期有什么区别？合并新老生命周期的理由是什么？
+
+在 React16.3 以前生命周期的钩子中存在很多副作用钩子，这些副作用钩子会造成额外的重新渲染，所以在新版的生命周期中去除了这些钩子，并提供了新的钩子使用纯函数的形式提供。新版生命周期函数如下：
+
+- constructor
+- static getProp(获取 props 和 state 的静态钩子) => static getDerivedStateFromProps
+- shouldComponentRender - 判断是否要进行渲染的钩子
+- render
+- getComponentSnapShot - 获取快照 => getSnapShotBeforeUpdate
+- DidComponentUpdate - 触发了 re-render 时会触发该钩子
+- DidComponentMount - commit 阶段
+- ComponentWillUnMount - 卸载
+
+改进：
+
+- 移除了旧版生命周期钩子有：`componentWillMount`、`componentWillReceiveProps`、`componentWillUpdate`
+- 是因为并发模式下移除的这些钩子可能会被调用多次，新方法设计为纯函数，适用于可能暂停、恢复的渲染过程
+
+## 什么是 React 中的状态撕裂问题？setState 是同步还是异步？
+
+状态撕裂问题是 React 新的并发模式下状态不同步问题，例如：并发模式下高优先级任务可以暂停页面的渲染，而如果渲染到一半用户触发了 input 输入更改了状态值则需要优先响应状态的更改，而如果用户又将状态改回原来的状态值，那么页面渲染就不会进行了，就会造成不同步问题。
+
+`setState` 我认为不能通过简单的同步还是异步来定义，深入分析是因为 React 内部处理 `setState` 时是将执行逻辑加入到异步队列中执行，但是如果使用了 `setTimeout` 这样的语法包裹导致 `setState` 脱离了 React 的执行环境，React 没有正常将 `setState` 内部逻辑加入到异步队列中，所以看起来是同步的。
+
+而对于这种歧义，在 React18 版本已经做了修复，不管在什么环境中都是异步的。
+
+改进：
+
+状态撕裂问题：当 UI 的不同部分反映同一状态的不同值时发生，尤其在并发更新场景下。换句话说就是在并发模式下，同一个状态被用在不同的 UI 渲染，会造成状态撕裂问题。
+
+## React 中的 Portal 是什么？
+
+React 中用于将元素脱离当前元素组件的方式，通常我们封装全局弹窗使用。
+
+## 自己实现一个 Hook 的关键点是什么？
+
+1. 保证 Hook 是纯函数
+2. 遵守 React Hook 的语法与规则
+3. 要保证 Hook 功能单一，简洁
