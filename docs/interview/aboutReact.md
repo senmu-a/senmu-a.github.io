@@ -191,3 +191,231 @@ React 中用于将元素脱离当前元素组件的方式，通常我们封装�
 1. 保证 Hook 是纯函数
 2. 遵守 React Hook 的语法与规则
 3. 要保证 Hook 功能单一，简洁
+
+## 你去实现 React 具体业务时 TS 类型不知道怎么设置怎么办？
+
+- 去 `React.d.ts` 中查看，可以参考一些 hook 等逻辑的类型编写
+- 使用 google 搜索/问 AI（chatgpt、claude、deepseek等）
+
+**补充**：
+
+```tsx
+// 一些常见的 TS 类型挑战及解决方案示例：
+// 1. 处理事件处理函数
+const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  console.log(e.target.value);
+};
+
+// 2. 复杂组件 Props 类型
+type ButtonProps = {
+  variant?: 'primary' | 'secondary';
+  size?: 'small' | 'medium' | 'large';
+  isFullWidth?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  children: React.ReactNode;
+} & (
+  | { href: string; as?: 'a' } 
+  | { href?: never; as?: 'button' }
+);
+
+// 3. 泛型 Hook 示例
+function useLocalStorage<T>(key: string, initialValue: T) {
+  // implementation
+}
+
+// 类型推断工具
+
+import { ComponentProps, ReturnType } from 'react';
+
+// 从现有组件获取 props 类型
+type MyButtonProps = ComponentProps<typeof Button>;
+
+// 从 Hook 获取返回类型
+type UseQueryResult = ReturnType<typeof useQuery>;v
+```
+
+## React 与其他框架对比优缺点是什么？你们团队选择 React 的理由是什么？
+
+React 的优点：
+
+- 生态完善，周边配套产品很多
+- 社区庞大且活跃
+- 灵活且强大的 `jsx` 语法
+- Hook 功能支持逻辑可复用性
+- 官方文档完善，并且有中、英文等支持
+- 跨浏览器兼容友好
+- 涵盖移动端（React-Native）、SSR（Next.js）
+- 由 Facebook 团队出品，可靠度高
+
+缺点：
+
+- 学习周期陡峭，不容易上手
+- 跨版本升级改动大，而且可能会完全推翻以前的实现
+- React 只是个处理视图的库，路由等功能都需要自行实现或者找第三方库
+
+总的来说，React 依然是非常优秀的框架，我们团队通常选择某个技术栈的理由如下：
+
+1. 考虑团队内大多数人的技术栈的情况
+2. 该框架是否稳定可靠（star 数、社区活跃度、测试覆盖率等）
+3. 技术栈是否与公司整体技术栈一致
+
+**补充**：
+
+与 Vue 的对比：
+
+- Vue 提供了更多开箱即用的功能(路由、状态管理)，而 React 更专注于视图层
+- Vue 使用模板语法和单文件组件，而 React 使用  JSX 语法
+- Vue 的响应式系统是自动的，而 React 需要手动触发更新
+
+与 Angular 对比：
+
+- Angular 是一个更加完整的框架
+- Angular 使用 TypeScript 和依赖注入，更适合大型企业应用
+- React 学习曲线相对较低，更灵活，但需要做更多架构决策
+
+## React 16/17/18 都有哪些变化？useTransition 是啥？解决了什么问题？
+
+React16:
+
+- 16.3 版本发布了新的生命周期钩子并废弃了一些有额外副作用的钩子
+- 16.8 版本发布了 Hook
+- 还使用 fiber reconcile重构了以前的 stack reconcile
+- 提出了并发渲染模式
+
+React17:
+
+- 垫脚石版本，为了升级 18 做准备
+- 移除了事件池
+- 将全局 document 绑定的事件改为了每个 app 实例上
+- 推出并发渲染模式实验版
+- 将底层任务调度改为 Line 模型
+
+React18:
+
+- 正式推出并发渲染模式
+- 增加了一些异步渲染的 Hook
+
+`useTransition` 是 React18 新增的异步渲染 Hook，可以降低渲染任务的优先级，让页面优先响应用户交互的事件。
+
+它解决了长列表渲染未完成页面无法交互的问题，提高的页面的可交互性，对用户更加友好。
+
+**补充**：
+
+React18还有一些特性：
+
+- Suspense 服务器组件支持
+- 新的 root API (`createRoot` 替代 `render`)
+- 自动批处理
+- 批量更新的自动化
+
+另外，补充 `useTransition` 的事例：
+
+```tsx
+import { useTransition, useState } from 'react';
+
+function FilterableList({ items }) {
+  const [query, setQuery] = useState('');
+  const [filteredItems, setFilteredItems] = useState(items);
+  const [isPending, startTransition] = useTransition();
+
+  const handleChange = (e) => {
+    // 高优先级更新 - 立即反映在UI上
+    setQuery(e.target.value);
+    
+    // 低优先级更新 - 可以被中断
+    startTransition(() => {
+      setFilteredItems(
+        items.filter(item => 
+          item.name.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
+    });
+  };
+
+  return (
+    <>
+      <input value={query} onChange={handleChange} />
+      {isPending ? <div>更新中...</div> : null}
+      <ul>
+        {filteredItems.map(item => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```
+
+## React 的整体渲染流程能描述一下吗？ ⭐️⭐️⭐️⭐️⭐️
+
+1. 初始化方式不同 React 会走不同的渲染模式（`.render`/`.createRoot`）
+2. 初始化一些内部变量，将渲染任务加入任务调度
+3. 在浏览器空闲时执行工作任务 - render 阶段，会深度递归整棵树，更新会做 diff 标记每个元素/组件是“新增、删除、修改”，然后处理 Hook 等 Effect
+4. commit 阶段，异步处理 Effect， 根据前面标记的情况进行页面元素的渲染挂载，还有合成事件的注册
+5. 处理完成将整棵树加入缓存，利用双缓存技术更新下次的渲染变更
+
+**补充**：
+
+React 渲染流程详解:
+
+1. 触发渲染
+   - 初次挂载: `ReactDOM.createRoot(container).render(<App />)`
+   - 状态更新: `setState`, `useState` 更新函数,`useReducer dispatch`
+
+2. Render 阶段 (可中断)
+   - 构建/更新 Fiber 树
+   - 执行函数组件/类组件的 render 方法
+   - Reconciliation: Diff 算法比较新旧 Fiber 树
+   - 为每个 Fiber 节点标记副作用标签(Placement, Update, Deletion)
+   - 此阶段纯计算，不涉及 DOM 操作
+
+3. Commit 阶段 (不可中断)
+   - 前置: 准备 DOM 变更，调用 `getSnapshotBeforeUpdate`
+   - 变更: 根据 flags 应用 DOM 更新，处理 ref
+   - 后置: 调用 `LayoutEffect`, `componentDidMount/Update`, 安排 `useEffect` 执行
+
+4. 浏览器绘制
+
+5. 被动副作用执行
+   - 运行 `useEffect` 回调函数
+
+## Fiber 架构请细致描述下 ⭐️⭐️⭐️
+
+从底层架构的角度说，Fiber 是一个节点，它包含了一个底层节点的所有信息，并且通过双向链表的形式连接。
+
+从渲染性能的角度来说，Fiber Reconcile 让渲染过程变得可暂停、中断、将任务切片。
+
+正是有了 Fiber 架构，React 才得以突破 cpu 任务的性能瓶颈。
+
+**补充**：
+
+Fiber 架构深度解析:
+
+1. 数据结构
+   每个 Fiber 节点包含:
+   - type: 元素类型 (如 'div', MyComponent)
+   - key: 唯一标识符
+   - child: 第一个子节点的指针
+   - sibling: 下一个兄弟节点的指针
+   - return: 父节点的指针
+   - pendingProps: 新的待处理 props
+   - memoizedProps: 上次渲染使用的 props
+   - memoizedState: 组件状态和 hooks 链表
+   - flags: 副作用标记 
+   - lanes: 优先级相关信息
+
+2. 工作原理
+   - 双缓存: current 树(当前显示)与 workInProgress 树(正在构建)
+   - 单向工作循环: beginWork (向下) 和 completeWork (向上)
+   - 时间切片: 每个工作单元执行后检查时间预算
+
+3. 调度优先级
+   - 同步任务
+   - 过渡任务 (Transition)
+   - 普通任务
+   - 空闲任务
+
+4. 中断与恢复
+   - 协作式调度: 主动让出控制权 
+   - 保存进度: 通过 WIP 树跟踪已完成工作
+   - 恢复机制: 从上次中断点继续
