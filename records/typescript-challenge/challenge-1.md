@@ -181,3 +181,29 @@ type GetReadonlyKeys<T> = keyof {
   [K in keyof T as Equal<Readonly<{ [P in K ]: T[K]}>, { [P in K]: T[K]}> extends true ? K : never]: T[K]
 };
 ```
+
+## 实现 MyReadOnly
+
+```ts
+interface Todo {
+  title: string
+  description: string
+  completed: boolean
+}
+
+// 将所有属性都设置 readonly 
+type MyReadOnly1<T> = {
+  readonly [K in keyof T]: T[K]
+}
+
+// 选择性的设置 readonly
+type MyReadOnly2<T, K extends keyof T> = Omit<T, K> & {
+  +readonly [P in K]: T[P]
+}
+
+type MyReadOnly2Other<T, K extends keyof T> = {
+  readonly [P in K]: T[P]
+} & {
+  [key in keyof T as key extends K ? never : key]: T[key]
+}
+```
