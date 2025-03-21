@@ -401,7 +401,7 @@ Fiber 架构深度解析:
    - pendingProps: 新的待处理 props
    - memoizedProps: 上次渲染使用的 props
    - memoizedState: 组件状态和 hooks 链表
-   - flags: 副作用标记 
+   - flags: 副作用标记
    - lanes: 优先级相关信息
 
 2. 工作原理
@@ -416,6 +416,26 @@ Fiber 架构深度解析:
    - 空闲任务
 
 4. 中断与恢复
-   - 协作式调度: 主动让出控制权 
+   - 协作式调度: 主动让出控制权
    - 保存进度: 通过 WIP 树跟踪已完成工作
    - 恢复机制: 从上次中断点继续
+
+话术表达：
+
+Fiber 架构分为几个点去说：
+
+1. 数据结构层面，每个 Fiber 节点包含：type、key、child、sibling、return、pendingProps、memoizedProps、memoizedState、flags、lanes
+2. 工作原理层面，使用了双缓存、单向工作循环、时间切片
+3. 任务优先级层面，划分为：同步任务、过渡任务、普通任务、空闲任务
+4. 任务调度层面，可暂停、可恢复、可中断
+
+美化：
+
+Fiber 架构可以从四个层面去说明：
+
+1. 数据结构层面，每个 Fiber 节点本质是 `JavaScript` 对象，包含：type、key、child、sibling、return 等指针属性形成可中断的链表结构，以及 pendingProps、memoizedProps、memoizedState 存储数据，flags 标记副作用，lanes 标记优先级。
+2. 工作原理层面，采用了三大机制：双缓存（current 与 workInProgress 两棵树交替工作），单向工作循环（beginWork 向下遍历，completeWork 向上回溯），以及时间切片（处理一个工作单元后检查是否需要让出线程控制权）。
+3. 任务优先级层面，将不同更新划分为：同步任务（用户交互）、过渡任务（UI 转换）、普通任务（数据更新）和空闲任务（预加载），确保重要操作优先响应。
+4. 任务调度层面，具备可暂停（中断低优先级工作）、可恢复（从断点继续）、可中断（高优先级任务插队）的能力，这是传统递归渲染所不具备的。
+
+这种架构设计让 React 能在保持响应性的同时处理复杂渲染工作，解决了以前版本中长任务阻塞导致的用户体验问题。
