@@ -1,5 +1,5 @@
 ---
-title: TypeScript 体操
+title: TypeScript 体操1
 date: 2025/03/14
 author: senmu
 ---

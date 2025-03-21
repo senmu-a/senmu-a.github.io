@@ -40,7 +40,7 @@ export default defineUserConfig({
       "/records/typescript-challenge/": [
         {
           text: "TypeScript 体操",
-          children: ["challenge-1"]
+          children: ["challenge-1", "challenge-2"]
         }
       ],
       "/records/weekly/2024/": [
