@@ -12,7 +12,7 @@ author: senmu
 
 **为什么会用 `useCallback`？**
 
-> 案例：https://code.juejin.cn/pen/7314937599994134537
+> 案例：<https://code.juejin.cn/pen/7314937599994134537>
 
 根据案例中的场景，我们有一个容器组件包括：切换主题、复杂的表单功能，在我们切换主题时并不会操作表单的功能，我们不希望表单组件进行重新渲染，但是如果我们不做任何处理它作为子组件的情况下还是会进行重新渲染；这是因为我们不使用 `useCallback` 包裹函数的情况下，每次重新渲染会使函数成为一个新的函数，那这就造成了表单组件的重新渲染。换句话说使用了 `useCallback` 包裹的函数在依赖项不改变的情况下使用的总是缓存的函数。
 
@@ -24,6 +24,7 @@ author: senmu
 const [query, setQuery] = useState('');
 const deferredQuery = useDefferedValue(query);
 ```
+
 **为什么会用 `useDeferredValue`？**
 
 想象一下我们有一个搜索框，用户在搜索框输入值会搜索相对应的值，如果使用 `state` 的话，那么每次输入都会触发重新渲染，项目小还没啥影响如果项目过大，那么卡顿感将会被放大。此时便可以使用 `useDeferredValue` 来实现类似防抖和节流的效果。
@@ -108,7 +109,7 @@ useEffect(() => {
 
 用于和 `forwardRef` 一起使用，暴露出元素部分重要的方法
 
-案例：https://code.juejin.cn/pen/7317177764723818522
+案例：<https://code.juejin.cn/pen/7317177764723818522>
 
 ### useInsertionEffect
 
@@ -132,7 +133,7 @@ function MyComponent() {
 
 与 `useEffect` 类似，不同的是它比 `useEffect` 生命周期更早并且会阻塞浏览器重绘，这也意味着它的性能较差，所以一般建议使用 `useEffect`，除非特殊场景。
 
-例如：https://code.juejin.cn/pen/7317478690915844133
+例如：<https://code.juejin.cn/pen/7317478690915844133>
 
 ### useMemo
 
@@ -166,9 +167,12 @@ const [value, setValue] = useState(/**initValue*/)
 
 ### useTransition
 
+> 使用该 hook 不会阻断页面 UI，例如：<https://code.juejin.cn/pen/7327947967090917385>
+> ⚠️注意，异步请求会有顺序问题，例如：<https://code.juejin.cn/pen/7485024592570875955>
+
 用法：`const [isPending, startTransition] = useTransition()`
 
-使用该 hook 不会阻断页面 UI，例如：https://code.juejin.cn/pen/7327947967090917385
+它的本质是将通过 `startTransition` 包裹的任务的优先级改为 `Transiton`，以此来打断该任务的执行，进而执行优先级更高的任务。
 
 另外，它的执行顺序需要了解下，请看下面的例子：
 
