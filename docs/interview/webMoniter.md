@@ -40,3 +40,66 @@ author: senmu
   - 预渲染
   - 页面是 `hidden` 状态
   - bfCache
+
+- 测量什么？(`value = FCP 事件发生的时间点 - 页面激活的时间点`)
+  - 预渲染：「页面激活的时间点（`activationStart`）」是用户实际导航到页面的时刻
+    - 时间 0ms：浏览器开始在后台预渲染页面 A
+    - 时间 2000ms：预渲染完成，页面在后台准备就绪
+    - 时间 5000ms：用户点击链接，导航到页面 A（此时 `activationStart` = 5000ms）
+    - 时间 5100ms：首次内容绘制 (FCP) 发生
+    - 结果：5100 - 5000 = 100
+  - 非预渲染：等于 0（即导航开始时间）
+- 如何上报？
+  - 页面非 `hidden` 状态，「强制上报」
+  - 从 `bfcache` 返回，重新计算，「强制上报」
+
+## LCP（最大内容的绘制）指标
+
+其实懂了上面的 FCP 这个指标也很容易理解，核心就三个步骤：
+
+1. 创建 `handleEntries` 方法来处理 `entries`
+   1. [什么是 `entries`？](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry)
+   2. <https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType>
+2. 使用 `PerformanceObserver` 监测 `largest-contentful-paint`
+3. 处理好边缘情况，上报数据
+
+与 FCP 不同的是，LCP 是一个多次采集的过程，终止条件在用户与页面发生交互或者页面 `hidden` 的情况，这时才会上报 LCP 统计的数据。
+
+- 测量什么？（`value = LCP 事件发生的时间点 - 页面激活的时间点`）
+  - 与 FCP 类似
+- 何时上报？
+  - 页面非 `hidden` 状态，「尝试上报」
+  - 页面发生了状态改变并且为 `hidden` 状态，「强制上报」
+  - 发生了用户交互，「强制上报」
+  - 从 `bfcache` 返回，重新计算，「强制上报」
+
+## CLS（累积偏移量）指标
+
+> 监测 `layout-shift`
+
+流程就不赘述了，来说下值得关注的部分：
+
+1. 必须发生在 `onFCP` 之后
+   1. 符合 `CrUX` 标准
+   2. 更加符合用户体验
+   3. 减少噪音
+2. 使用「会话窗口」的算法来计算 CLS
+   1. **分组**：把时间上接近的布局偏移归为一组（窗口）
+   2. **计时**：一个窗口的总时长不超过5秒，相邻偏移间隔不超过1秒
+   3. **取最大值**：最终报告所有窗口中分数最高的那个
+3. 何时上报？
+   1. 当前「会话窗口」累计的偏移量大于前面累计的最大偏移量「尝试上报」（如果没有设置`reportAllChanges`为`true`也不会上报）
+      1. 聚焦最差的
+   2. 页面是 `hidden` 状态，「强制上报」（不管是否设置`reportAllChanges`都会上报）
+   3. `bfcache` 之后「尝试上报」（如果没有设置`reportAllChanges`为`true`也不会上报）
+   4. 最后，就算没有满足以上条件也「尝试上报」（如果没有设置`reportAllChanges`为`true`也不会上报）
+
+## TTFB（首字节返回时间）指标
+
+> 从点击链接到服务器开始发送响应需要多长时间？
+
+- 测量什么？
+  - `TTFB = responseStart - activationStart`
+- 何时上报？
+  - 统计到第一个请求返回，立马强制上报
+  - `bfcache` 之后，重制指标值，强制上报（因为从 `bfcache` 返回，无需请求接口，所以直接上报 0）
