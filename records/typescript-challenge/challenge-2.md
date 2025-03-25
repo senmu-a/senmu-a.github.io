@@ -48,3 +48,98 @@ type MyComputedType<T> = T extends Record<string, () => any> ? { [K in keyof T]:
 
 declare function SimpleVue<D, C, M>(options: ObjectOptionsDescriptor<D, C, M>): any
 ```
+
+## 实现 DeepReadonly
+
+> <https://github.com/type-challenges/type-challenges/blob/main/questions/00009-medium-deep-readonly/README.md>
+
+Implement a generic `DeepReadonly<T>` which make every parameter of an object - and its sub-objects recursively - readonly.
+
+You can assume that we are only dealing with Objects in this challenge. Arrays, Functions, Classes and so on do not need to be taken into consideration. However, you can still challenge yourself by covering as many different cases as possible.
+
+For example:
+
+```ts
+type X = {
+  x: {
+    a: 1
+    b: 'hi' | 'nihao'
+  }
+  y: 'hey'
+}
+
+type Expected = {
+  readonly x: {
+    readonly a: 1
+    readonly b: 'hi'
+  }
+  readonly y: 'hey'
+}
+
+type Todo = DeepReadonly<X> // should be same as `Expected`
+```
+
+- 分析题目意图：实现 `DeepReadonly<T>` 用于递归对象，让每个属性都赋予 `readonly`，可以假设只处理“对象”类型。
+
+按照自己的思路直接实现：
+
+```ts
+// ❓问题1: 如何继续判断 T[K] 是否是“对象”类型？
+// ❓问题2: 如何递归下去？
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K]
+}
+```
+
+- 问题1可以反向思考，与其判断 `T[K]` 是否为“对象”，不如判断 `keyof T` 是否为 `never`，作为递归的终止条件。
+- 问题2类似js函数一样，直接重新调用 `DeepReadonly<T>` 即可。⭐️⭐️⭐️
+
+有了以上知识再实践：
+
+```ts
+type DeepReadonly<T> = keyof T extends never ? {
+  readonly [K in keyof T]: T[K]
+} : T
+```
+
+但是！！这样判断有点问题，遇到联合类型就不行了：
+
+```ts
+type X = {
+  x: {
+    a: 1
+    b: 'hi' | 'nihao'
+  }
+  y: 'hey'
+} | {
+  z: {
+    a: number
+    b: string
+    foo: {
+      c: 1
+    }
+  }
+}
+type Hmm<T> = keyof T extends never ? 1 : 0;
+type TodoX = DeepReadonly<X>; // 1
+
+// ❓问题3: 联合类型没法通过这样的方式来判断
+```
+
+> 参考：<https://stackoverflow.com/questions/68693054/what-is-extends-never-used-for/68693367>
+
+👆上面的回答很好解释了这个问题，所以又回到了问题1，我们通过 `keyof T extends never` 来确定有点局限，那么直接使用 `T extends object` 呢？
+
+```ts
+type DeepReadonly<T> = T extends object ? {
+  readonly [K in keyof T]: DeepReadonly<T[K]>
+} : T;
+```
+
+完美✅
+
+总结：
+
+- 掌握 TS 中的类型递归的方式
+- 掌握如何设置递归的终止条件
+  - 无论是 `keyof T extends never` 还是 `T extends object` 都是很好的思路，区别只是细节问题了
