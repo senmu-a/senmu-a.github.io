@@ -143,3 +143,29 @@ type DeepReadonly<T> = T extends object ? {
 - 掌握 TS 中的类型递归的方式
 - 掌握如何设置递归的终止条件
   - 无论是 `keyof T extends never` 还是 `T extends object` 都是很好的思路，区别只是细节问题了
+
+## 实现 TupleToUnion
+
+Implement a generic `TupleToUnion<T>` which covers the values of a tuple to its values union.
+
+For example:
+
+```ts
+type Arr = ['1', '2', '3'];
+type Test = TupleToUnion<Arr> // expected to be '1' | '2' | '3'
+```
+
+- 分析题目意图：元组转成联合类型
+- 思路1: 遍历元组的 `key`，然后输出 `T[key]`
+- 思路2: 想办法直接把元组里的内容拿出来
+
+实践：
+
+```ts
+// 遍历
+type TupleToUnion1<T extends unknown[]> = T[keyof T]; // 这种可以拿到  '1' | '2' | '3'，但是会产生很多其他不想要的方法？能不能过滤掉
+// 升级
+type TupleToUnionPro1<T extends unknown[]> = T[number]; // '1' | '2' | '3'
+// 直接将元组中的元素拿出来
+type TupleToUnion2<T extends unknown[]> = T extends (infer U)[] ? U : never;
+```
