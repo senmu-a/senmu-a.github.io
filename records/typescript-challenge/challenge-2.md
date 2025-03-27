@@ -169,3 +169,30 @@ type TupleToUnionPro1<T extends unknown[]> = T[number]; // '1' | '2' | '3'
 // 直接将元组中的元素拿出来
 type TupleToUnion2<T extends unknown[]> = T extends (infer U)[] ? U : never;
 ```
+
+## 实现 TupleToObject
+
+Given an array, transform it into an object type and the key/value must be in the provided array.
+
+For example:
+
+```ts
+const tuple = ['tesla', 'model 3', 'model X', 'model Y'] as const;
+
+type result = TupleToObject<typeof tuple> // expected { 'tesla': 'tesla', 'model 3': 'model 3', 'model X': 'model X', 'model Y': 'model Y'}
+```
+
+- 分析题目意图：需要将一个数组转换成 js 普通对象形式的类型，key/value 的形式。
+- 思路1: 遍历数组，映射 key-value
+
+```ts
+type TupleToObject<T extends readonly PropertyKey[]> = {
+  [K in T[number]]: K
+}
+```
+
+这样的思路是可以的，但是有一些细节需要注意：
+
+1. `as const` 断言可以将一个数组断言成只读的元组，对于一些 hook 的返回值很有用～
+2. 可以使用 `PropertyKey` 来灵活做类型约束
+3. `T[number]` 是遍历数组/元组的方式
