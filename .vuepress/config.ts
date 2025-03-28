@@ -58,7 +58,7 @@ export default defineUserConfig({
       "/docs/interview": [
         {
           text: "面试记录",
-          children: ["byteDance", "aboutReact", "reactHook"]
+          children: ["byteDance", "aboutReact", "reactHook", "aboutOptimzation"]
         }
       ]
     },
