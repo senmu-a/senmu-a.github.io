@@ -196,3 +196,72 @@ type TupleToObject<T extends readonly PropertyKey[]> = {
 1. `as const` 断言可以将一个数组断言成只读的元组，对于一些 hook 的返回值很有用～
 2. 可以使用 `PropertyKey` 来灵活做类型约束
 3. `T[number]` 是遍历数组/元组的方式
+
+## 实现 Chainable
+
+Chainable options are commonly used in Javascript. But when we switch to TypeScript, can you properly type it?
+In this challenge, you need to type an object or a class - whatever you like - to provide two function option(key, value) and get(). In option, you can extend the current config type by the given key and value. We should about to access the final result via get.
+
+For example
+
+```ts
+declare const config: Chainable
+const result = config.option('foo', 123).option('name', 'type-challenges').option('bar', { value: 'Hello World' }).get();
+
+// expect the type of result to be:
+
+interface Result {
+  foo: number
+  name: string
+  bar: {
+    value: string
+  }
+}
+
+// You don't need to write any js/ts logic to handle the problem - just in type level.
+// You can assume that key only accepts string and the value can be anything - just leave it as-is. Same key won't be passed twice.
+
+type Chainable<T = {}> = {
+  option: <K extends string, V>(key: K, value: V) => Chainable<T & { [P in K]: V}>
+  get: () => T
+}
+```
+
+1. 分析题目意图：
+   1. 实现一个 `Chainable`，可以使用对象类型或者 `class` 来实现，需要包括 `option(key, value)` 和 `get()` 这两个方法。
+   2. `option` 方法可以扩展 `config` 的类型，通过 `get` 来获得最终的类型。
+   3. 不需要写 js 逻辑来处理这个问题
+   4. 可以假设 `key` 只有 `string`，`value` 为 `any`。
+   5. 相同的 `key` 不能被传递两次。
+2. 尝试实现：
+
+```ts
+// 很好，但是我们无法得到 T；所以，接下来我们该对 T 进行扩展
+type Chainable1<T = {}> = {
+  option: (key: string, value: any) => Chainable<T>
+  get: () => T
+}
+// 如何将 key 和 value 加入到扩展类型中？
+// 肯定需要定义新的泛型来表示 key 和 value 了
+type Chainable2<T = {}> = {
+  option: <K extends string, V>(key: K, value: V) => Chainable<T & { [P in K]: V }>
+  get: () => T
+}
+// 很好，但是还有一个问题，那就是相同的 key 不能被传递两次，我们上面的类型无法约束；所以，接下来我们来约束 K
+type Chainable3<T = {}> = {
+  option: <K extends string, V>(key: K extends keyof T ? never : K, value: V) => Chainable<T & { [P in K]: V }>
+  get: () => T
+}
+
+// 结果：
+type Chainable<T = {}> = {
+  option: <K extends string, V>(key: K extends keyof T ? never : K, value: V) => Chainable<T & { [P in K]: V }>
+  get: () => T
+}
+```
+
+总结：
+
+1. `T = {}` 可以默认给泛型赋值
+2. 如果要给一个对象类型扩展类型的话，需要定义 K 和 V 额外的泛型来实现，简单来说就是借助泛型来当变量使用
+3. 注意题目中的约束 `K extends keyof T ? never : K`
