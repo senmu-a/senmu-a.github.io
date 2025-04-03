@@ -265,3 +265,32 @@ type Chainable<T = {}> = {
 1. `T = {}` 可以默认给泛型赋值
 2. 如果要给一个对象类型扩展类型的话，需要定义 K 和 V 额外的泛型来实现，简单来说就是借助泛型来当变量使用
 3. 注意题目中的约束 `K extends keyof T ? never : K`
+
+## 实现 First
+
+Implement a generic `First<T>` that takes an Array T and returns its first element's type.
+
+For example:
+
+```ts
+type arr1 = ['a', 'b', 'c']
+type arr2 = [3, 2, 1]
+
+type head1 = First<arr1> // expected to be 'a'
+type head2 = First<arr2> // expected to be 3
+```
+
+1. 分析题目意图：这个题乍一看挺简单，实现一个泛型 `First<T>` 返回数组的第一个元素
+2. 实现思路：直接返回 `T[0]` 完事了
+
+但是！！！这种简单的题也不能忘记兜底，一定要确定传入的 `T` 是数组并且有元素才行。
+
+下面是三中不同的方式来判断 `T` 是否是空数组。
+
+```ts
+type First<T extends any[]> = T extends [] ? never : T[0];
+
+type First<T extends any[]> = T extends [infer F, ...infer Rest] ? F : never;
+
+type First<T extends any[]> = T['length'] extends 0 ? never : T[0];
+```
