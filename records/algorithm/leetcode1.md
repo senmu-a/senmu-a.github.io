@@ -183,3 +183,70 @@ function deleteNode(node: ListNode | null): void {
     node.next = node.next.next;
 };
 ```
+
+## 两数相加
+
+> <https://leetcode.cn/problems/add-two-numbers/>
+
+1. 分析题目意图：两个链表，按照相同的顺序相加，每个节点小于10，如果大于等于10的话想后进位，如果存在进位的情况则需要一直加到结束，如果某一个链表已经遍历结束并且没有进位的情况下，另一个链表还有下一位则直接将结果的下一位指向未完成相加的节点。
+2. 实现思路：
+   1. 定义一个空链表来存储结果
+   2. 随意遍历 l1 和 l2 两个链表，并声明临时变量(`step`)存储进位情况
+   3. 如果 l1 和 l2 的节点都存在，则 `l1.val + l2.val + step` 并判断是否大于 10，大于 10，需要变更临时变量 `step`
+   4. 如果只有其中一个链表还存在节点，那么判断是否还存在 `step` 不存在直接更改链表指向，存在需要继续计算
+   5. 遍历完返回结果
+
+```ts
+function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
+    const head = new ListNode();
+    let node = head;
+    let step = 0;
+    while (l1 || l2) {
+        let num = 0;
+        num = (l1?.val || 0) + (l2?.val || 0) + step;
+        if (num > 9) {
+            num -= 10;
+            step = 1;
+        } else if (num ===0 && !l1?.next && !l2?.next) {
+            return head;
+        } else {
+            step = 0;
+        }
+        node.next = new ListNode(num);
+        l1 = l1?.next;
+        l2 = l2?.next;
+        node = node.next;
+    }
+    if (step) {
+        node.next = new ListNode(step);
+    }
+    return head.next;
+};
+```
+
+## 删除排序链表中的重复元素
+
+> <https://leetcode.cn/problems/remove-duplicates-from-sorted-list/>
+
+1. 分析题目意图：删除排序链表中的重复元素，那就是判断当前节点的值是否和下个节点的值相等，相等的话就改变 next 的指向，不相等就继续遍历处理下个节点。
+2. 实现思路：
+   1. 定义一个额外的指针用来处理当前节点的值是否和“下一个节点的值”相等的情况
+   2. 遍历链表直到所以节点处理完成
+
+```ts
+function deleteDuplicates(head: ListNode | null): ListNode | null {
+    if (!head) return head;
+    let nextNode = head.next;
+    const node = head;
+    while (head) {
+        if (head.val === nextNode?.val) {
+            nextNode = nextNode?.next;
+        } else {
+            head.next = nextNode;
+            head = head.next;
+            nextNode = nextNode?.next;
+        }
+    }
+    return node;
+};
+```
