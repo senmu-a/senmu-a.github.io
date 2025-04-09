@@ -250,3 +250,73 @@ function deleteDuplicates(head: ListNode | null): ListNode | null {
     return node;
 };
 ```
+
+## 环形链表
+
+> <https://leetcode.cn/problems/linked-list-cycle/>
+
+1. 分析题目意图：判断当前链表是否是环形链表，可以用一个列表来记录访问过的节点，如果有遇到已访问过的节点，那就是环形链表。
+2. 实现思路：
+   1. 创建一个列表来记录访问过的节点
+   2. 遍历节点，遇到访问过的节点就返回 true
+   3. 遍历完没遇到访问过的节点就返回 false
+
+```ts
+function hasCycle(head: ListNode | null): boolean {
+    if (!head) return false;
+    const historys = new Set();
+    while(head) {
+        if (historys.has(head)) {
+            return true;
+        }
+        historys.add(head);
+        head = head.next;
+    }
+    return false;
+};
+```
+
+进阶：使用 O(1) 空间复杂度来完成
+
+- 实现思路：
+  - 不能用额外的空间存储节点
+  - 使用双指针的方式，一个快指针一个慢指针，如果是个环肯定会相遇
+  - 注意边界情况
+
+```ts
+function hasCycle(head: ListNode | null): boolean {
+    if (!head) return false;
+    let fast = head?.next; // 一次增加两格
+    let slow = head;
+
+    while(fast && slow) {
+        if (slow === fast) {
+            return true;
+        }
+        fast = fast?.next?.next;
+        slow = slow?.next;
+    }
+    return false;
+};
+```
+
+## 两个数组的交集
+
+> <https://leetcode.cn/problems/intersection-of-two-arrays/>
+
+没啥好说的，直接上 [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/intersection) 就完事了
+
+```ts
+function intersection(nums1: number[], nums2: number[]): number[] {
+    const set1: Set<number> = new Set(nums1);
+    const set2: Set<number> = new Set(nums2);
+    const result: number[] = [];
+    
+    set1.forEach(item => {
+        if (set2.has(item)) {
+            result.push(item);
+        }
+    });
+    return result;
+};
+```
