@@ -300,7 +300,7 @@ function hasCycle(head: ListNode | null): boolean {
 };
 ```
 
-## 两个数组的交集
+## 两个数组的交集 ⭐️⭐️⭐️
 
 > <https://leetcode.cn/problems/intersection-of-two-arrays/>
 
@@ -318,5 +318,94 @@ function intersection(nums1: number[], nums2: number[]): number[] {
         }
     });
     return result;
+};
+```
+
+## 两数之和
+
+> <https://leetcode.cn/problems/two-sum/>
+
+1. 分析题目意图：找到数组中两个数相加等于 target 的数组的下标，并返回他们
+2. 实现思路：
+   1. 一眼扫过去可以使用两个 for 循环实现，时间复杂度是 O(n^2)
+   2. 先排好序（O(n)），再二分 ❌
+   3. 使用“哈希表”，将每个数组项和下标值加入哈希表中，判断 `target - nums[i]` 是否在哈希表中，在的话就返回。
+
+```ts
+// 暴力解法
+function twoSum(nums: number[], target: number): number[] {
+    for (let i = 0; i < nums.length; i++) {
+        for (let j = i + 1; j < nums.length; j++) {
+            if (nums[i] + nums[j] === target) {
+                return [i, j];
+            }
+        }
+    }
+    return []
+};
+
+// 哈希表
+function twoSum(nums: number[], target: number): number[] {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const diff = target - nums[i];
+    if (map.has(diff)) {
+      return [map.get(diff), i];
+    }
+    map.set(nums[i], i);
+  }
+  return []
+};
+```
+
+## 无重复字符的最长子串
+
+> <https://leetcode.cn/problems/longest-substring-without-repeating-characters/>
+
+1. 分析题目意图：给定一个字符串中，没有重复字符的最长子串，也就是连续无重复最长的子串的长度是多少。
+2. 实现思路：
+   1. 既然要求最长的子串，那么肯定要遍历这个字符串，并且维护一个最长子串的长度值，最终返回，另外还需要维护一个 Set 集合用于不断添加字符。
+   2. 使用滑动窗口，先找到最大的窗口，然后再缩小窗口在增加窗口，直到指针都指向末尾。
+
+```ts
+// 暴力解法
+function lengthOfLongestSubstring(s: string): number {
+    let max = 0;
+    const set = new Set();
+    for (let i = 0; i < s.length; i++) {
+        const str1 = s.charAt(i);
+        set.add(str1);
+        for (let j = i+1; j < s.length; j++) {
+            const str2 = s.charAt(j);
+            if (!set.has(str2)) {
+                set.add(str2);
+            } else {
+                max = Math.max(max, set.size);
+                set.clear();
+                break;
+            }
+        }
+    }
+    return Math.max(max, set.size);
+};
+
+// 滑动窗口
+function lengthOfLongestSubstring(s: string): number {
+    if (!s.length) return 0;
+    let max = 1;
+    const set = new Set();
+    let start = 0;
+    let end = 1;
+    set.add(s[start]);
+    while (start < s.length) {
+        while (end < s.length && !set.has(s[end])) {
+            set.add(s[end]);
+            ++end;
+        }
+        max = Math.max(max, end - start);
+        set.delete(s[start]);
+        ++start;
+    }
+    return max;
 };
 ```
