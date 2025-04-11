@@ -409,3 +409,69 @@ function lengthOfLongestSubstring(s: string): number {
     return max;
 };
 ```
+
+## 最小覆盖子串 ⭐️⭐️
+
+> <https://leetcode.cn/problems/minimum-window-substring/>
+
+1. 分析题目意图：最小覆盖子串换句话说就是 s 字符串中能覆盖 t 字符串中字符的最小子串的内容是什么
+2. 实现思路：
+   1. 滑动窗口、哈希表
+   2. 使用双指针来控制窗口的滑动，使用哈希表来映射存储 t 字符串字符，以此来简化处理 t 字符串内容
+   3. 定义 minLen 和 minStart 来记录最小窗口，便于截取最小子串
+
+```ts
+function minWindow(s: string, t: string): string {
+    //(ADOBEC)ODEBANC
+    // ADO(BECODEBA)NC
+    // ADOBE(CODEBA)NC
+    // ADOBECODE(BANC)
+    // ADOBECODEB(ANC) break
+
+    // 如果 s 小于 t 字符串的长度，单独处理
+    if (s.length < t.length) return '';
+
+    // 将 t 中的字符映射到哈希表
+    const map = new Map();
+    for (const key of t) {
+        map.set(key, map.has(key) ? map.get(key) + 1 : 1);
+    }
+
+    // 定义 count 为 map 的长度
+    let count = map.size;
+
+    let left = 0; // 定义左指针用于控制窗口的大小
+    let right = 0; // 定于右指针用来查找符合字符串 t 的内容
+
+    // 记录最小窗口的起始下标和长度
+    let minLen = Infinity, minStart = 0;
+    
+    while (right < s.length) {
+        const r = s[right];
+        if (map.has(r)) {
+            let _count = map.get(r);
+            map.set(r, --_count);
+            if (_count === 0) {
+                --count;
+            }
+        }
+        ++right;
+        while (count === 0) {
+            if (minLen > right - left) {
+                minLen = right - left;
+                minStart = left;
+            }
+            const l = s[left];
+            if (map.has(l)) {
+                let _count = map.get(l);
+                map.set(l, ++_count);
+                if (_count > 0) {
+                    ++count;
+                }
+            }
+            ++left;
+        } 
+    }
+    return minLen === Infinity ? '' : s.slice(minStart, minStart + minLen);
+};
+```
