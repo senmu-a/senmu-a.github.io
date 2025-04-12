@@ -294,3 +294,27 @@ type First<T extends any[]> = T extends [infer F, ...infer Rest] ? F : never;
 
 type First<T extends any[]> = T['length'] extends 0 ? never : T[0];
 ```
+
+## 实现 Last
+
+Implement a generic `Last<T>` that takes an Array T and returns its last element.
+
+For example:
+
+```ts
+type arr1 = ['a', 'b', 'c']
+type arr2 = [3, 2, 1]
+
+type tail1 = Last<arr1> // expected to be 'c'
+type tail2 = Last<arr2> // expected to be 1
+```
+
+1. 分析题目意图：使用泛型 `Last<T>` 拿到数组中最后一个元素
+2. 实现思路：断言最后一个元素，存在就返回
+
+```ts
+type Last<T extends any[]> = T extends [...infer Rest, infer L] ? L : never;
+
+// 往数组前面添加一个 any，然后再拿到 T['length'] 就是最后一个元素 ！！！🫜🫜🫜
+type Last<T extends any[]> = [any, ...T][T['length']];
+```
