@@ -318,3 +318,49 @@ type Last<T extends any[]> = T extends [...infer Rest, infer L] ? L : never;
 // 往数组前面添加一个 any，然后再拿到 T['length'] 就是最后一个元素 ！！！🫜🫜🫜
 type Last<T extends any[]> = [any, ...T][T['length']];
 ```
+
+## 实现 Pop
+
+Implement a generic `Pop<T>` that takes an Array T and returns an Array without it's last element.
+
+For example:
+
+```ts
+type arr1 = ['a', 'b', 'c', 'd']
+type arr2 = [3, 2, 1]
+
+type re1 = Pop<arr1> // expected to be ['a', 'b', 'c']
+type re2 = Pop<arr2> // expected to be [3, 2]
+
+type Pop<T extends any[]> = T extends [...infer Rest, infer L] ? Rest : never;
+```
+
+Extra: Similarly, can you implement Shift, Push and Unshift as well?
+
+1. 分析题目意图：类似数组一样，写一个泛型 `pop<T>` 将数组最后一位给弹出
+2. 实现思路：可以利用 `infer` 断言最后一位，然后留下前面的
+
+```ts
+type Pop<T extends any[]> = T extends [...infer Rest, infer L] ? Rest : never;
+```
+
+## 实现 Length
+
+For given a tuple, you need create a generic Length, pick the length of the tuple
+
+For example:
+
+```ts
+type tesla = ['tesla', 'model 3', 'model X', 'model Y'];
+type spaceX = ['FALCON 9', 'FALCON HEAVY', 'DRAGON', 'STARSHIP', 'HUMAN SPACEFLIGHT'];
+
+type teslaLength = Length<tesla>  // expected 4
+type spaceXLength = Length<spaceX> // expected 5
+```
+
+1. 分析题目意图：返回元组类型的长度
+2. 实现思路：
+
+```ts
+type Length<T extends any[]> = T['length'];
+```
