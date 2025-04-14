@@ -364,3 +364,20 @@ type spaceXLength = Length<spaceX> // expected 5
 ```ts
 type Length<T extends any[]> = T['length'];
 ```
+
+## 实现 Exclude
+
+Implement the built-in `Exclude<T, U>` Exclude from T those types that are assignable to U
+
+For example:
+
+```ts
+type Result = MyExclude<'a' | 'b' | 'c', 'a'>; // 'b' | 'c'
+```
+
+1. 分析题目意图：排除掉联合类型中的某个类型
+2. 实现思路：如果 T 断言是 U 则为 never，否则输出 T
+
+```ts
+type MyExclude<T, U> = T extends U ? never : T;
+```
