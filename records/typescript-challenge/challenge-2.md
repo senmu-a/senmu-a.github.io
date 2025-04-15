@@ -381,3 +381,24 @@ type Result = MyExclude<'a' | 'b' | 'c', 'a'>; // 'b' | 'c'
 ```ts
 type MyExclude<T, U> = T extends U ? never : T;
 ```
+
+## 实现 GetRequired
+
+Implement the advanced util type `GetRequired<T>`, which remains all the required fields
+
+For example:
+
+```ts
+type I = GetRequired<{ foo: number, bar?: string }>; // expected to be { foo: number }
+```
+
+1. 分析题目意图：获取到必填的类型属性
+2. 实现思路：需要能判断出来某个属性是非必填的，然后过滤掉就好，或者判断出来是必填的过滤出来
+3. 判断某个属性是否必填可以用 `Omit` 排除掉某个属性，看看某个属性是否可有可无，就能知道是否是可选的属性了
+
+```ts
+type IsRequired<X, Y extends keyof X> = Omit<X, Y> extends X ? 1 : 0;
+type GetRequired<T extends {}> = {
+  [K in keyof T as IsRequired<T, K> extends 1 ? never : K]: T[K]
+}
+```

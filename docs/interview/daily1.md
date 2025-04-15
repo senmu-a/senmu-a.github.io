@@ -18,6 +18,8 @@ author: senmu
 
 ## 5. 可以通过 performance.timing 获得非常多的性能指标，这个你了解多少？目前被废弃了，那最新的 API 有了解吗？
 
+补充：字体可以使用 `preload` + `font-display: swap;` 做优化。
+
 下面是 2025-04-05 的题：
 
 ## 1. React 在开发过程中有哪些性能优化策略？
