@@ -402,3 +402,36 @@ type GetRequired<T extends {}> = {
   [K in keyof T as IsRequired<T, K> extends 1 ? never : K]: T[K]
 }
 ```
+
+## 实现 PromiseAll
+
+Type the function PromiseAll that accepts an array of PromiseLike objects, the returning value should be `Promise<T>` where T is the resolved result array.
+
+```ts
+const promise1 = Promise.resolve(3);
+const promise2 = 42;
+const promise3 = new Promise<string>((resolve, reject) => {
+  setTimeout(resolve, 100, 'foo');
+});
+
+// expected to be `Promise<[number, 42, string]>`
+const p = PromiseAll([promise1, promise2, promise3] as const);
+```
+
+1. 分析题目意图：实现一个类型函数 `PromiseAll` 可以返回传入 promise 执行后的返回值
+2. 实现思路：
+   1. 题中 promise1、2、3 的返回类型是什么
+      1. `Promise<number>`
+      2. `number`
+      3. `Promise<string>`
+   2. `const a = [promise1, promise2, promise3] as const`
+      1. a 为 `readonly [Promise<number>, 42, Promise<string>]`
+3. 定义函数类型的方式为：`declare function PromiseAll<T>(args: T): xxx`
+
+看了答案后的思路：
+
+1. 遍历元组类型，拿到每一项然后去断言是否属于 `Promise<infer R>` 是的话就返回 `R` 否则返回元素
+
+```ts
+declare function PromiseAll<T extends any[]>(args: T): Promise<{ [K in keyof T]: T[K] extends Promise<infer R> ? R : T[K]}>;
+```
