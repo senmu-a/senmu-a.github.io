@@ -475,3 +475,156 @@ function minWindow(s: string, t: string): string {
     return minLen === Infinity ? '' : s.slice(minStart, minStart + minLen);
 };
 ```
+
+## 使用JavaScript/TypeScript实现树的深度优先遍历和广度优先遍历~
+
+树的结构是一个可以把问题拆分成一个最小问题的情况，也就是一个“根节点”，分了两个左右子节点，那么深度递归的话就是一直找当前节点是否还有子节点，有的话就继续找，直到找不到子节点为止。
+
+```ts
+class TreeNode {
+    constructor(val, left=null, right=null) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+let root = new TreeNode(1);
+root.left = new TreeNode(2);
+root.right = new TreeNode(3);
+root.left.left = new TreeNode(4);
+root.left.right = new TreeNode(5);
+root.right.left = new TreeNode(6);
+root.right.right = new TreeNode(7);
+
+//       1
+//      / \
+//     2   3
+//    / \ / \
+//   4  5 6  7
+
+// 深度优先遍历（递归）
+function deepReclusive(node) {
+    if (!node) return;
+    
+    console.log(node.val);
+
+    deepReclusive(node.left);
+    deepReclusive(node.right);
+}
+deepReclusive(root); // 1 2 4 5 3 6 7 
+
+// 广度优先
+function bfs(node) {
+    if (!node) return;
+    const queue = [node];
+    while (queue.length) {
+        const n = queue.shift();
+        console.log(n.val);
+        n.left && queue.push(n.left);
+        n.right && queue.push(n.right);
+    }
+}
+bfs(root); // 1 2 3 4 5 6
+```
+
+## 使用JavaScript/TypeScript实现树的先中后序遍历（不能使用递归）
+
+先中后说的就是“根节点”的顺序在哪个位置。
+
+- 先序遍历：根、左、右
+- 中序遍历：左、根、右
+- 后续遍历：左、右、根
+
+```ts
+class TreeNode {
+    constructor(val, left=null, right=null) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+let root = new TreeNode(1);
+root.left = new TreeNode(2);
+root.right = new TreeNode(3);
+root.left.left = new TreeNode(4);
+root.left.right = new TreeNode(5);
+root.right.left = new TreeNode(6);
+root.right.right = new TreeNode(7);
+
+//       1
+//      / \
+//     2   3
+//    / \ / \
+//   4  5 6  7
+
+// 先序遍历
+function preOrder(node) {
+    if (!node) return;
+    const stack = [node];
+
+    while (stack.length) {
+        const n = stack.pop();
+        console.log(n.val);
+        n.right && stack.push(n.right);
+        n.left && stack.push(n.left);
+    }
+}
+preOrder(root); // 1 2 4 5 3 6 7
+
+// 中序遍历
+function midOrder(node) {
+    if (!node) return;
+    const stack = [node];
+
+    while (stack.length) {
+        // if (node.left) {
+        //     node = node.left;
+        //     stack.push(node);
+        // } else {
+        //     const n = stack.pop();
+        //     console.log(n?.val);
+        //     if (n.right) {
+        //         node = n.right;
+        //         stack.push(node);
+        //     }
+        // }
+        while (node.left) {
+            node = node.left;
+            stack.push(node);
+        }
+        const n = stack.pop();
+        console.log(n.val);
+        if (n.right) {
+            node = n.right;
+            stack.push(node);
+        }
+    }
+}
+midOrder(root); // 4 2 5 1 6 3 7
+
+// 后序遍历
+function lastOrder(node) {
+    if (!node) return;
+    const stack = [node];
+    let last = null;
+
+    while (stack.length) {
+        while (node?.left) {
+            node = node.left;
+            stack.push(node);
+        }
+        const n = stack[stack.length - 1];
+        if (!n.right || n.right === last) {
+            console.log(n.val);
+            last = n;
+            stack.pop();
+        } else {
+            node = n.right;
+            stack.push(node);
+        }
+    }
+}
+lastOrder(root); // 4 5 2 6 7 3 1
+```
