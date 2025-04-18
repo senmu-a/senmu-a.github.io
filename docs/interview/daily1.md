@@ -266,3 +266,37 @@ CDN 原理：
 5. 布局
 6. 绘制
 7. 合成
+
+👇下面是 2025-04-18 的题：
+
+## 1. 从输入 URL 到页面加载全过程？
+
+## 2. 说说 DNS 解析的具体过程？ TODO
+
+## 3. 常见的 http 请求头部都有哪些，以及他们的作用？
+
+1. Host
+2. User-Agent
+3. Referer
+4. Accept
+5. Accept-Language
+6. Accpet-Encoding
+7. Authorization
+8. Connection
+9. Cache-Control
+10. Content-Type
+11. Content-Length
+
+## 4. encoding 头都有哪些编码方式？
+
+话术：`Content-Encoding` 是一个 HTTP 响应头，用于指示服务器对响应内容应用的压缩或编码方式，主要为了减少传输数据量，优化性能。常见的编码方式包括：
+
+- gzip 基于 deflate 兼容性好，适合文本资源，速度快（js/css 资源）
+- br(Brotli) 现代算法，压缩率更高，适合大文件（相比 gzip 兼容性差一些，速度慢一些，更加消耗cpu资源）
+- zstd(Zstandard) 新兴算法，兼顾压缩率和速度。
+- deflate
+- identify 默认值
+
+注意：图片不用 content-encoding 进行压缩，因为使用 jpeg/webp 就已经是压缩过的了，大图片的话一般用 Range 和 Accept-Range 来进行传输优化。
+
+## 5. utf-8 和 asc 码有什么区别？
