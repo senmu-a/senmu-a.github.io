@@ -628,3 +628,83 @@ function lastOrder(node) {
 }
 lastOrder(root); // 4 5 2 6 7 3 1
 ```
+
+## 二叉树的最大深度
+
+> <https://leetcode.cn/problems/maximum-depth-of-binary-tree/>
+
+1. 分析题目意图：找到二叉树的最大深度，也就是从根节点到最远节点的节点数量有多少
+2. 实现思路：
+   1. 将每个节点遍历一遍，并且记录每个节点的“最大深度”是多少，最后输出那个最远的节点深度值即可
+
+```ts
+/**
+ * Definition for a binary tree node.
+ */
+class TreeNode {
+    val: number
+    left: TreeNode | null
+    right: TreeNode | null
+    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+        this.val = (val===undefined ? 0 : val)
+        this.left = (left===undefined ? null : left)
+        this.right = (right===undefined ? null : right)
+    }
+}
+
+function maxDepth(root: TreeNode | null): number {
+    if (!root) return 0;
+
+    const stack: Array<[TreeNode | null, number]> = [[root, 1]];
+
+    let maxDepth = 0;
+
+    while (stack.length) {
+        const [node, depth] = stack.pop();
+
+        maxDepth = Math.max(maxDepth, depth);
+
+        if (node.left) {
+            stack.push([node.left, depth+1]);
+        }
+        if (node.right) {
+            stack.push(node.right, depth+1);
+        }
+    }
+    return maxDepth;
+};
+
+// 递归版
+function maxDepth(root: TreeNode | null): number {
+    if (!root) return 0;
+
+    return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+};
+```
+
+## 二叉树的最小深度
+
+> <https://leetcode.cn/problems/minimum-depth-of-binary-tree/>
+
+1. 分析题目意图：从根节点到最近“叶子节点”的最小深度，叶子节点是没有子节点的节点。
+2. 实现思路：同上题，只不过需要判断“叶子节点”
+
+```ts
+function minDepth(root: TreeNode | null): number {
+    if (!root) return 0;
+
+    const stack: Array<[TreeNode|null, number]> = [[root, 1]];
+    let min = Infinity;
+
+    while (stack.length) {
+        const [node, depth] = stack.pop();
+
+        if (!node?.left && !node?.right) {
+            min = Math.min(min, depth);
+        }
+        node.left && stack.push([node.left, depth+1]);
+        node.right && stack.push([node.right, depth+1]);
+    }
+    return min;
+};
+```
