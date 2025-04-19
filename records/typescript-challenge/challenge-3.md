@@ -62,3 +62,37 @@ type capitalized = Capitalize<'hello world'>; // expected to be 'Hello world'
 ```ts
 type MyCapitalize<T extends string> = T extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : T;
 ```
+
+## 实现 TrimLeft
+
+Implement `TrimLeft<T>` which takes an exact string type and returns a new string with the whitespace beginning removed.
+
+For example:
+
+```ts
+type trimed = TrimLeft<'  Hello World  '>; // expected to be 'Hello World  '
+```
+
+1. 分析题目意图：将字符串的左侧的空格给删掉
+2. 实现思路：
+   1. 匹配掉空格和后面的字符，然后将空格删掉
+
+```ts
+type Space = ' ' | '\n' | '\t';
+type TrimLeft<T extends string> = T extends `${Space}${infer R}` ? TrimLeft<R> : T;
+```
+
+## 实现 Trim
+
+Implement `Trim<T>` which takes an exact string type and returns a new string with the whitespace from both ends removed.
+
+For example:
+
+```ts
+type trimmed = Trim<'  Hello World  '>; // expected to be 'Hello World'
+```
+
+```ts
+type Space = ' ' | '\n' | '\t';
+type Trim<T extends string> = T extends `${Space}${infer R}${Space}` ? Trim<R> : T;
+```
