@@ -708,3 +708,80 @@ function minDepth(root: TreeNode | null): number {
     return min;
 };
 ```
+
+## 二叉树的层序遍历
+
+> <https://leetcode.cn/problems/binary-tree-level-order-traversal/>
+
+1. 分析题目意图：按照层级（从上到下）从左到右依次遍历节点并保存，最后输出结果
+2. 实现思路：
+   1. 使用队列直接一次入队出队就行
+
+```ts
+// 标记层级，然后对应添加元素
+function levelOrder(root: TreeNode | null): number[][] {
+    if (!root) return [];
+
+    const queue: Array<[TreeNode | null, number]> = [[root, 0]];
+    const result: number[][] = [];
+
+    while (queue.length) {
+        const [node, index] = queue.shift();
+        if (!result[index]) {
+            result[index] = [];
+        }
+        result[index].push(node.val);
+        node.left && queue.push([node.left, index+1]);
+        node.right && queue.push([node.right, index+1]);
+    }
+    return result;
+};
+
+// 优先处理层级
+function levelOrder(root: TreeNode | null): number[][] {
+    const result = [];
+    if (!root) return result;
+
+    const queue: TreeNode[] = [root];
+
+    while (queue.length) {
+        const size = queue.length;
+        result.push([]);
+        for (let i = 0; i < size; i++) {
+            const node = queue.shift();
+            result[result.length - 1].push(node.val);
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+    return result;
+};
+```
+
+## 二叉树的中序遍历
+
+> <https://leetcode.cn/problems/binary-tree-inorder-traversal/>
+
+```ts
+// 使用栈
+function inorderTraversal(root: TreeNode | null): number[] {
+    if (!root) return [];
+
+    const stack: TreeNode[] = [root];
+    const result = [];
+
+    while (stack.length) {
+        while (root.left) {
+            root = root.left;
+            stack.push(root);
+        }
+        const node = stack.pop();
+        result.push(node.val);
+        if (node.right) {
+            root = node.right;
+            stack.push(root);
+        }
+    }
+    return result;
+};
+```
