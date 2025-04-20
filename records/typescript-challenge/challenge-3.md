@@ -96,3 +96,40 @@ type trimmed = Trim<'  Hello World  '>; // expected to be 'Hello World'
 type Space = ' ' | '\n' | '\t';
 type Trim<T extends string> = T extends `${Space}${infer R}${Space}` ? Trim<R> : T;
 ```
+
+## 实现 Replace
+
+Implement `Replace<S, From, To>` which replace the string From with To once in the given string S
+
+For Example:
+
+```ts
+type replaced = Replace<'types are fun!', 'fun', 'awesome'>; // expected to be 'types are awesome!'
+```
+
+1. 分析题目意图：替换类型中的某块内容
+2. 实现思路：
+   1. 应该是要递归判断字符串内容是否与 `From` 相同，相同的话用 `To` 替换掉 ❌
+   2. 直接使用 `infer` 断言就行
+
+```ts
+type Replace<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer F}${From}${infer R}` ? `${F}${To}${R}` : S;
+```
+
+## 实现 ReplaceAll
+
+Implement `ReplaceAll<S, From, To>` which replace the all the substring From with To in the given string S
+
+For example:
+
+```ts
+type replaced = ReplaceAll<'t y p e s', ' ', ''>; // expected to be 'types'
+```
+
+1. 分析题目意图：替换掉类型中所有匹配到的内容
+2. 实现思路：
+   1. 应该是要递归判断了
+
+```ts
+type ReplaceAll<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer F}${From}${infer R}` ? `${F}${To}${ReplaceAll<R, From, To>}` : S;
+```
