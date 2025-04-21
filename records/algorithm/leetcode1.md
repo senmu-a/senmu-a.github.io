@@ -785,3 +785,72 @@ function inorderTraversal(root: TreeNode | null): number[] {
     return result;
 };
 ```
+
+## 路径总和
+
+> <https://leetcode.cn/problems/path-sum/>
+
+```ts
+// 递归版
+function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
+    if (!root) return false;
+
+    if (!root.left && !root.right) {
+        return targetSum  === root.val;
+    }
+    return hasPathSum(root.left, targetSum-root.val) || hasPathSum(root.right,targetSum-root.val);
+};
+// 栈版-深度遍历
+function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
+    if (!root) return false;
+  // 1. 深度遍历
+  // 2. 叶子节点的路经和
+
+  const stack: Array<[TreeNode | null, number]> = [[root, root.val]];
+
+  while (stack.length) {
+    const [node, total] = stack.pop();
+
+    if (!node.left && !node.right) {
+        if (total === targetSum) {
+            return true;
+        }
+    }
+
+    node.left && stack.push([node.left, total + node.left.val]);
+    node.right && stack.push([node.right, total + node.right.val]);
+  }
+  return false;
+};
+```
+
+## 克隆图
+
+> <https://leetcode.cn/problems/clone-graph/>
+
+```ts
+function cloneGraph(node: _Node | null): _Node | null {
+    if (!node) return node;
+    
+    const visted = new Map(); // 记录已经访问过的节点
+    // 核心使用队列遍历
+    const queue = [node];
+
+    visted.set(node, new _Node(node.val));
+
+    while (queue.length) {
+        const n = queue.shift();
+
+        n.neighbors.forEach(item => {
+            // 主遍历节点需要管是否访问过，不然就循环引用了
+            if (!visted.has(item)) {
+                queue.push(item);
+                visted.set(item, new _Node(item.val));
+            }
+            // 邻居不管是否有没有访问过
+            visted.get(n).neighbors.push(visted.get(item));
+        });
+    }
+    return visted.get(node);
+};
+```
