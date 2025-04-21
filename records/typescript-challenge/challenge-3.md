@@ -133,3 +133,33 @@ type replaced = ReplaceAll<'t y p e s', ' ', ''>; // expected to be 'types'
 ```ts
 type ReplaceAll<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer F}${From}${infer R}` ? `${F}${To}${ReplaceAll<R, From, To>}` : S;
 ```
+
+## 实现 All
+
+Returns true if all elements of the list are equal to the second parameter passed in, false if there are any mismatches.
+
+For example:
+
+```ts
+type Test1 = [1, 1, 1];
+type Test2 = [1, 1, 2];
+
+type Todo = All<Test1, 1>; // should be same as true
+type Todo2 = All<Test2, 1>; // should be same as false
+```
+
+1. 分析题目意图：如果列表中所有的元素都等于第二个参数的值，返回 `true` 否则返回 `false`
+2. 实现思路：
+   1. 将数组转成联合类型，然后判断是否等于第二个参数
+   2. 遍历数组，一个一个的判断是否相等
+
+```ts
+type Equal<X, Y> =
+   (<T>() => T extends X ? 1 : 2) extends
+   (<T>() => T extends Y ? 1 : 2) ?
+   true : false;
+
+type All<T extends any[], V> = T extends (infer U)[] ? Equal<U, V> : false;
+
+type All<T extends any[], V> = T[number] extends V ? true : false;
+```
