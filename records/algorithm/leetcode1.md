@@ -854,3 +854,114 @@ function cloneGraph(node: _Node | null): _Node | null {
     return visted.get(node);
 };
 ```
+
+## 数组中的第K个最大元素 ⭐️⭐️⭐️
+
+> <https://leetcode.cn/problems/kth-largest-element-in-an-array/>
+
+```ts
+// 快速选择算法
+function partition(arr, left, right) {
+  const pivot = arr[left];
+  let i = left - 1;  
+  let j = right + 1;
+
+  while (i < j) {
+    do {
+        i++;
+    } while(arr[i] < pivot);
+    do {
+        j--;
+    } while(arr[j] > pivot);
+
+    if (i < j) {
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  [arr[j], arr[left]] = [arr[left], arr[j]];
+  return j;
+}
+
+function quickSelect(arr, left, right, k) {
+    if (left === right) return arr[k];
+
+    const pivotIndex = partition(arr, left, right);
+
+    if (k === pivotIndex) {
+        return arr[k];
+    } else if (k < pivotIndex) {
+        return quickSelect(arr, left, pivotIndex - 1, k);
+    } else {
+        return quickSelect(arr, pivotIndex + 1, right, k);
+    }
+}
+
+function findKthLargest(nums: number[], k: number): number {
+    return quickSelect(nums, 0, nums.length - 1, nums.length - k);
+};
+
+```
+
+## 前 K 个高频元素 ⭐️⭐️⭐️
+
+> <https://leetcode.cn/problems/top-k-frequent-elements/>
+
+```ts
+// 快速排序的变种实现
+function partition(arr, left, right) {
+    const pivot = arr[left][1];
+    let i = left - 1;
+    let j = right + 1;
+
+    while (i < j) {
+        do {
+            i++;
+        } while(arr[i][1] < pivot);
+        do {
+            j--;
+        } while(arr[j][1] > pivot);
+        if (i < j) {
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    // [arr[left], arr[j]] = [arr[j], arr[left]];
+    return j;
+}
+
+function quickSort(arr, left, right, k) {
+    if (left === right) return right;
+
+    const pivotIndex = partition(arr, left, right);
+
+    if (k === pivotIndex) {
+        return pivotIndex;
+    } else if (k <= pivotIndex) {
+        return quickSort(arr, left, pivotIndex, k);
+    } else {
+        return quickSort(arr, pivotIndex + 1, right, k);
+    }
+
+}
+
+function topKFrequent(nums: number[], k: number): number[] {
+    const map = new Map();
+    for (let i = 0; i < nums.length; i++) {
+        const num = nums[i];
+        const key = map.get(num);
+        if (key) {
+            map.set(num, key+1);
+        } else {
+            map.set(num, 1);
+        }
+    }
+    const arr = [];
+    for (const [key, value] of map.entries()) {
+        arr.push([key, value]);
+    }
+    
+    const index = quickSort(arr, 0, arr.length - 1, arr.length - k);
+    return arr.slice(index).map(item => item[0]);
+};
+```
