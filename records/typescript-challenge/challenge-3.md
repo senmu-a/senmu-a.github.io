@@ -163,3 +163,34 @@ type All<T extends any[], V> = T extends (infer U)[] ? Equal<U, V> : false;
 
 type All<T extends any[], V> = T[number] extends V ? true : false;
 ```
+
+## 实现 OmitByType
+
+From T, pick a set of properties whose type are not assignable to U.
+
+For Example:
+
+```ts
+type OmitBoolean = OmitByType<{
+  name: string
+  count: number
+  isReadonly: boolean
+  isEnable: boolean
+}, boolean> // { name: string; count: number }
+```
+
+1. 分析题目意图：将泛型 T 中含有泛型 U 类型的属性给排除掉
+2. 实现思路：
+   1. 遍历对象 key，拿到 `T[K]` 然后做断言判断
+   2. 排除掉 `T[K]` extends `U` 的属性即可
+
+```ts
+// ❌
+type OmitByType<T extends {}, U> = {
+   [K in keyof T]: T[K] extends U ? never : T[K]
+}
+// ✅
+type OmitByType<T extends {}, U> = {
+   [K in keyof T as T[K] extends U ? never : K]: T[K]
+}
+```
