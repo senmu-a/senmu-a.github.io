@@ -73,3 +73,59 @@ function Currying(callback: (...args: any[]) => any) {
   }
 }
 ```
+
+## 手写一个 Promise.all
+
+```ts
+function myPromiseAll(arr?: Promise<unknown[]> | unknown[]): Promise<unknown> {
+  if (!arr || !arr.length) return Promise.reject('xxx');
+  // 包裹非 promise 的情况
+  return new Promise((resolve, reject) => {
+    const result = [];
+    let requestCount = 0;
+    arr.forEach((item, index) => {
+      Promise.resolve(item).then(res => {
+        result[index] = res;
+        requestCount++;
+
+        if (requestCount === arr.length) {
+          resolve(result);
+        }
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  });
+}
+```
+
+## 手写一个 Promise 节流
+
+```ts
+function throttlePromises(promises: Promise<unknown[]> | unknown[], max: number): Promise<unknown[]> {
+  if (!promises || !promises.length) return Promise.reject('xxx');
+  return new Promise((resolve, reject) => {
+    const queue = [...promises];
+    const result = [];
+    let requestCount = 0;
+
+    function run() {
+      if (result.length === promises.length) {
+        resolve(result);
+      }
+      while (requestCount < max && queue.length) {
+        const fn = queue.shift();
+        requestCount++;
+        fn().then((res) => {
+          result.push(res);
+          requestCount--;
+          run();
+        }).catch(err => {
+          reject(err);
+        });
+      }
+    }
+    run();
+  });
+}
+```
