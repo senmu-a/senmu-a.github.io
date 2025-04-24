@@ -378,3 +378,137 @@ function backtrace(result: number[][], temp: number[], nums: number[], startInde
 }
 
 ```
+
+## 单词替换
+
+> <https://leetcode.cn/problems/replace-words/solutions/1649109/dan-ci-ti-huan-by-leetcode-solution-pl6v/>
+
+1. 分析题目意图：将字典中的单词替换掉句子中出现的单词+词根的形式
+2. 实现思路：
+   1. 维护一个 Set 集合
+   2. 将一段句子转换成数组，遍历数组
+   3. 再套一层循环遍历每个单词
+   4. 用 Set 集合去匹配每个字母组成的单词，匹配到了就返回
+   5. 继续下一个单词的匹配
+
+```ts
+function replaceWords(dictionary: string[], sentence: string): string {
+  const set = new Set();
+  for (const root of dictionary) {
+      set.add(root);
+  }
+  const words = sentence.split(" ");
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    for (let j = 0; j < word.length; j++) {
+      if (set.has(word.substring(0, j + 1))) {
+        words[i] = word.substring(0, j + 1);
+        break;
+      }
+    }
+  }
+  return words.join(" ");
+};
+```
+
+## LRU 缓存
+
+> <https://leetcode.cn/problems/lru-cache/>
+
+核心理念：哈希 Map + 双向链表
+
+- 哈希 Map 用来存 key-链表
+- 双向链表用来存缓存的新鲜度
+  - 事先定义好头节点和尾节点
+  - 靠近头节点的是最新的，靠近尾节点的是旧的
+- 添加缓存/获取缓存都要将获取到的节点从链表中删除然后重新添加到头节点的下一个节点
+
+```ts
+class DLinkNode {
+    key: number;
+    value: number;
+    prev: DLinkNode;
+    next: DLinkNode;
+    constructor(key?: number, value?: number) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+class LRUCache {
+    cache: Map<number, DLinkNode>;
+    size: number;
+    max: number;
+    head: DLinkNode;
+    tail: DLinkNode;
+    constructor(capacity: number) {
+        this.size = 0;
+        this.max = capacity;
+        this.cache = new Map();
+        this.head = new DLinkNode();
+        this.tail = new DLinkNode();
+        this.head.next = this.tail;
+        this.tail.prev = this.head;
+    }
+
+    get(key: number): number {
+        const node = this.cache.get(key);
+        if (!node) return -1;
+        this.moveToHead(node);
+        return node.value;
+    }
+
+    put(key: number, value: number): void {
+        const node = this.cache.get(key);
+        if (node) {
+            node.value = value;
+            this.moveToHead(node);
+        } else {
+            const newNode = new DLinkNode(key, value);
+            this.cache.set(key, newNode);
+            this.addToHead(newNode);
+            this.size++;
+            if (this.size > this.max) {
+                const tail = this.removeTail();
+                this.cache.delete(tail.key);
+                this.size--;
+            }
+        }
+    }
+
+    private addToHead(node: DLinkNode) {
+        const tmp = this.head.next;
+        this.head.next = node;
+        node.prev = this.head;
+        node.next = tmp;
+        tmp.prev = node;
+    }
+
+    private removeNode(node: DLinkNode) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    private moveToHead(node: DLinkNode) {
+        this.removeNode(node);
+        this.addToHead(node);
+    }
+
+    private removeTail() {
+        const tmp = this.tail.prev.prev;
+        const prev = this.tail.prev;
+        this.tail.prev = tmp;
+        tmp.next = this.tail;
+        return prev;
+    }
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * var obj = new LRUCache(capacity)
+ * var param_1 = obj.get(key)
+ * obj.put(key,value)
+ */
+```
+
+## 
