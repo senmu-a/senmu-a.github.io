@@ -129,3 +129,90 @@ function throttlePromises(promises: Promise<unknown[]> | unknown[], max: number)
   });
 }
 ```
+
+## 实现一个 jsonp
+
+创建一个 `script` 标签，写入地址并给 `query` 传一个函数，然后将该标签插入文档 `body` 中。
+
+```js
+const script = document.createElement('script');
+script.src = 'www.qiandu.com?callback=fn';
+document.body.appendChild(script);
+function fn(data) {
+  console.log(data);
+}
+```
+
+## 实现 Promise TODO
+
+核心理念：
+
+- 有三个状态，并且状态不可逆
+- 需要两个队列，成功状态的和失败状态的
+- 一个结果 result
+- 链式调用
+
+```ts
+enum EPromiseState {
+  PENDING = 'pending',
+  FULLFILLED = "fullfilled",
+  REJECTED = "rejected"
+}
+class MyPromise<T = unknown> {
+  state: EPromiseState;
+  result: T;
+  onFulfilledCallbacks: Array<(value: T) => void>;
+  onRejectedCallbacks: Array<(reason: any) => void>;
+
+  constructor(callback: (resolve, reject) => MyPromise) {
+    this.state = EPromiseState.PENDING;
+    this.result = undefined;
+    this.onFulfilledCallbacks = [];
+    this.onRejectedCallbacks = [];
+    
+    const resolve = (value: T) => {
+      if (this.state === EPromiseState.PENDING) {
+        this.state = EPromiseState.FULFILLED;
+        this.result = value;
+        this.onFulfilledCallbacks.forEach(callback => callback(value));
+      }
+    };
+    
+    const reject = (reason: any) => {
+      if (this.state === EPromiseState.PENDING) {
+        this.state = EPromiseState.REJECTED;
+        this.result = reason;
+        this.onRejectedCallbacks.forEach(callback => callback(reason));
+      }
+    };
+
+    try {
+      callback(resolve, reject);
+    } catch(err) {
+      reject(error);
+    }
+  }
+
+  static resolve(value?: T): MyPromise<T> {
+    return new MyPromise((resolve) => {
+      resolve(value);
+    });
+  }
+
+  then() {}
+
+  catch() {}
+}
+```
+
+## 实现深拷贝
+
+```ts
+function deepClone() {}
+```
+
+## 函数防抖
+
+## 函数节流
+
+## 函数柯理化
