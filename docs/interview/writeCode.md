@@ -199,20 +199,164 @@ class MyPromise<T = unknown> {
     });
   }
 
-  then() {}
+  then(cb, errCb) {
+    const queuePromise = new MyPromise();
+    
+  }
 
-  catch() {}
+  catch(cb) {
+
+  }
 }
 ```
 
 ## 实现深拷贝
 
 ```ts
-function deepClone() {}
+
+// 基本正确，但是有缺陷
+// 1. 没处理循环引用的情况
+// 2. Map 和 Set 的处理有问题
+function deepClone(obj) {
+  // 1. 判断 obj 是否存在，不存在直接返回
+  // 2. 判断 obj 是否是基本类型，是的话直接返回
+  // 3. 判断 obj 是否是其他引用类型，例如：正则、日期对象、Promise 对象、Map、Set
+  // 4. 判断 obj 是否是数组，是的话进行遍历，然后递归调用 deepClone
+  // 5. 判断 obj 是否是对象，是的话遍历对象，递归调用 deepClone
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof RegExp) return new RegExp(obj.pattern, obj.flags);
+  if (obj instanceof Promise) return Promise.resolve(obj);
+  if (obj instanceof Map) return new Map(obj.entries());
+  if (obj instanceof Set) return new Set(obj.entries());
+  if (Array.isArray(obj)) {
+    return obj.map(item => deepClone(item));
+  }
+  if (Object.prototype.toString.call(obj) === '[object Object]') {
+    const result = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = deepClone(obj[key]);
+      }
+    }
+    return result;
+  }
+  return obj;
+}
+
+// 正确版本 ✅
+function deepClone(obj) {
+  // 创建 WeakMap 用于存储已克隆的对象，防止循环引用
+  const hash = new WeakMap();
+
+  function _deepClone(_obj) {
+    // 1. 判断 obj 是否存在，不存在直接返回
+    // 2. 判断 obj 是否是基本类型，是的话直接返回
+    // 3. 判断 obj 是否是其他引用类型，例如：正则、日期对象、Promise 对象、Map、Set
+    // 4. 判断 obj 是否是数组，是的话进行遍历，然后递归调用 deepClone
+    // 5. 判断 obj 是否是对象，是的话遍历对象，递归调用 deepClone
+    if (_obj === null || typeof _obj !== 'object') return _obj;
+    if (hash.has(_obj)) return hash.get(_obj);
+    if (_obj instanceof Date) return new Date(_obj.getTime());
+    if (_obj instanceof RegExp) return new RegExp(_obj.pattern, _obj.flags);
+    if (_obj instanceof Promise) return Promise.resolve(_obj);
+    if (_obj instanceof Date) return new Date(_obj.getTime());
+    if (_obj instanceof RegExp) return new RegExp(_obj.pattern, _obj.flags);
+    if (_obj instanceof Promise) return Promise.resolve(_obj);
+    if (_obj instanceof Map) {
+      const map = new Map();
+      hash.set(_obj, map);
+      _obj.forEach((value, key) => {
+        map.set(key, _deepClone(value));
+      });
+      return map;
+    }
+    if (_obj instanceof Set) {
+      const set = new Set();
+      hash.set(_obj, set);
+      _obj.forEach(value => {
+        set.add(_deepClone(value));
+      });
+      return set;
+    }
+    if (Array.isArray(_obj)) {
+      const arr = [];
+      hash.set(_obj, arr);
+      return _obj.forEach((item, index) => {
+        arr[index] = _deepClone(item);
+      });
+    }
+    if (Object.prototype.toString.call(_obj) === '[object Object]') {
+      const result = {};
+      hash.set(_obj, result);
+      for (const key in _obj) {
+        if (_obj.hasOwnProperty(key)) {
+          result[key] = _deepClone(_obj[key]);
+        }
+      }
+      return result;
+    }
+  }
+  
+  return _deepClone(obj);;
+}
 ```
 
 ## 函数防抖
 
+不要有多次触发/执行，最后一次触发/执行才执行
+
+```ts
+function debounce(fn) {
+  let timer = null;
+
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, 500);
+  }
+}
+```
+
 ## 函数节流
 
+想象一下水流，从高处到低处水会一直流出来，想要节流应该怎么办呢？那就是设置一个阀门，打开阀门后一段时间内水才能通过，阀门关闭后一段时间才能打开。
+
+```ts
+function throttle(fn) {
+  let timer = null;
+  return (...args) => {
+    // 阀门不开，不允许运行任务
+    if (timer) return;
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = null;
+    }, 500);
+  }
+}
+```
+
 ## 函数柯理化
+
+```ts
+const add = (a: number, b: number) => a + b;
+const three = add(1, 2);
+
+const curriedAdd = Currying(add);
+const five = curriedAdd(2)(3);
+
+function Currying(fn) {
+  // 收集回调函数的参数，拿到他有几个入参，便于判断
+  const fnLen = fn.length;
+  return function curried(args) {
+    if (args.length >= fnLen) {
+      return fn.apply(this, args);
+    } else {
+      return function(...newArgs) {
+        return curried([...args, ...newArgs]);
+      }
+    }
+  }
+}
+```
