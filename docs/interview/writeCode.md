@@ -360,3 +360,39 @@ function Currying(fn) {
   }
 }
 ```
+
+## 手写 useState
+
+- 定义保存状态的缓存
+- 隔离每个 useState 的 index
+
+```ts
+const globalState = [];
+let stateIndex = 0;
+
+function useState(initState) {
+  const curentIndex = stateIndex++;
+
+  let _state = initState;
+
+  if (typeof initState === 'function') {
+    _state = initState();
+  }
+
+  if (!currentIndex in globalState) {
+    globalState[currentIndex] = _state;
+  }
+
+  const setState = (newState) => {
+    if (newState) {
+      if (typeof newState === 'function') {
+        newState = newState(globalState[currentIndex]);
+      }
+      globalState[currentIndex] = newState;
+    }
+  }
+
+  // [state, setState]
+  return [globalState[currentIndex], setState];
+}
+```
